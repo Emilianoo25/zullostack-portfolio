@@ -1,0 +1,144 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base
+  title="Sobre mí — ZulloStack"
+  description="Soy Emi, desarrollador full-stack y fundador de ZulloStack. Construyo sitios y agentes de IA para PyMEs en Buenos Aires."
+>
+  <div class="page-wrap">
+    <div class="page-inner">
+      <header class="page-header">
+        <p class="eyebrow">— SOBRE MÍ</p>
+        <h1 class="page-title">Emi Zullo.</h1>
+      </header>
+
+      <div class="content-grid">
+        <div class="bio">
+          <p>
+            Soy desarrollador full-stack con foco en resultados de negocio. Trabajo con PyMEs
+            en Buenos Aires que quieren vender más por internet o automatizar tareas repetitivas
+            usando IA. No hago webs decorativas: hago webs que trabajan.
+          </p>
+          <p>
+            Empecé como desarrollador freelance hace varios años. Con el tiempo me especialicé
+            en commerce y automatización, y hoy combino las dos cosas bajo ZulloStack.
+            La mayoría de mis clientes llegan por recomendación.
+          </p>
+          <p>
+            Cuando no estoy programando, estoy leyendo sobre sistemas, aprendiendo sobre IA
+            aplicada, o tomando mate en Villa del Parque.
+          </p>
+        </div>
+
+        <aside class="principles">
+          <h2 class="principles-title">Cómo trabajo</h2>
+          <ul class="principles-list" role="list">
+            <li>Hablo claro, sin tecnicismos vacíos</li>
+            <li>Te muestro avances cada semana</li>
+            <li>Si no puedo ayudarte, te lo digo</li>
+            <li>No empiezo sin entender tu negocio</li>
+            <li>El código es mío, los resultados son tuyos</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page-wrap {
+    padding: 64px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .page-title {
+    font-family: var(--font-sans);
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 64px;
+    align-items: start;
+  }
+
+  .bio {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .bio p {
+    font-size: 16px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .principles {
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-default);
+    border-radius: 8px;
+    padding: 28px;
+  }
+
+  .principles-title {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    margin-bottom: 20px;
+  }
+
+  .principles-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .principles-list li {
+    font-size: 13px;
+    color: #d0d0d0;
+    padding-left: 18px;
+    position: relative;
+    line-height: 1.5;
+  }
+
+  .principles-list li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 768px) {
+    .content-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+</style>

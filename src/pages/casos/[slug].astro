@@ -1,0 +1,224 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const casos = await getCollection('casos');
+  return casos.map((caso) => ({
+    params: { slug: caso.id.replace(/\.mdx?$/, '') },
+    props: { caso },
+  }));
+}
+
+const { caso } = Astro.props;
+const { Content } = await caso.render();
+
+const allCasos = await getCollection('casos');
+const sorted = allCasos.sort(
+  (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
+);
+const currentIdx = sorted.findIndex((c) => c.id === caso.id);
+const prevCaso = sorted[currentIdx + 1];
+const nextCaso = sorted[currentIdx - 1];
+const slugify = (id: string) => id.replace(/\.mdx?$/, '');
+---
+<Base
+  title={`${caso.data.title} — ZulloStack`}
+  description={caso.data.result}
+>
+  <div class="case-wrap">
+    <div class="case-inner">
+      <header class="case-header">
+        <div class="header-meta">
+          <span class="badge-category">{caso.data.category}</span>
+          <span class="badge-year">{caso.data.year}</span>
+        </div>
+
+        <h1 class="case-title">{caso.data.title}</h1>
+        <p class="case-subtitle">{caso.data.problem}</p>
+
+        <dl class="case-details">
+          <div class="detail">
+            <dt>Cliente</dt>
+            <dd>{caso.data.client}</dd>
+          </div>
+          <div class="detail">
+            <dt>Ubicación</dt>
+            <dd>{caso.data.location}</dd>
+          </div>
+          <div class="detail">
+            <dt>Año</dt>
+            <dd>{caso.data.year}</dd>
+          </div>
+        </dl>
+
+        <div class="tags">
+          {caso.data.tags.map((tag) => (
+            <span class="tag">{tag}</span>
+          ))}
+        </div>
+      </header>
+
+      <div class="divider"></div>
+
+      <article class="prose">
+        <Content />
+      </article>
+
+      <nav class="case-nav" aria-label="Navegación entre casos">
+        <a href="/casos" class="nav-back">← todos los casos</a>
+        <div class="nav-adjacent">
+          {prevCaso && (
+            <a href={`/casos/${slugify(prevCaso.id)}`} class="nav-prev">
+              ← {prevCaso.data.title}
+            </a>
+          )}
+          {nextCaso && (
+            <a href={`/casos/${slugify(nextCaso.id)}`} class="nav-next">
+              {nextCaso.data.title} →
+            </a>
+          )}
+        </div>
+      </nav>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .case-wrap {
+    padding: 64px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .case-inner {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .case-header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 8px;
+  }
+
+  .badge-category,
+  .badge-year {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-category {
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--accent);
+    border: 0.5px solid var(--border-accent);
+  }
+
+  .badge-year {
+    color: var(--text-tertiary);
+    border: 0.5px solid var(--border-default);
+  }
+
+  .case-title {
+    font-family: var(--font-sans);
+    font-size: clamp(32px, 5vw, 48px);
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+
+  .case-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 560px;
+    line-height: 1.6;
+  }
+
+  .case-details {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .detail {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .detail dt {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.06em;
+  }
+
+  .detail dd {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    border: 0.5px solid var(--border-subtle);
+    border-radius: 4px;
+    padding: 2px 8px;
+  }
+
+  .divider {
+    height: 0.5px;
+    background: var(--border-default);
+    margin-bottom: 40px;
+  }
+
+  .case-nav {
+    margin-top: 64px;
+    padding-top: 28px;
+    border-top: 0.5px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .nav-back,
+  .nav-prev,
+  .nav-next {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nav-back:hover,
+  .nav-prev:hover,
+  .nav-next:hover {
+    color: var(--text-secondary);
+  }
+
+  .nav-adjacent {
+    display: flex;
+    gap: 24px;
+  }
+</style>

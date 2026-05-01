@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import StatsRow from '../components/StatsRow.astro';
+import FeaturedCase from '../components/FeaturedCase.astro';
+import CaseGrid from '../components/CaseGrid.astro';
+import Toolbelt from '../components/Toolbelt.astro';
+import CTA from '../components/CTA.astro';
+---
+<Base
+  title="ZulloStack — Desarrollo web y agentes de IA para PyMEs"
+  description="Soy Emi. Construyo sitios y automatizaciones de IA para PyMEs en Buenos Aires que están dejando plata sobre la mesa."
+>
+  <Hero />
+  <StatsRow />
+
+  <section id="work" aria-labelledby="work-title" class="work-section">
+    <div class="work-inner">
+      <p class="eyebrow">— SELECTED WORK</p>
+      <h2 id="work-title" class="section-title">Casos reales, resultados reales.</h2>
+      <FeaturedCase />
+      <CaseGrid />
+    </div>
+  </section>
+
+  <Toolbelt />
+  <CTA />
+</Base>
+
+<style>
+  .work-section {
+    padding: 80px 24px 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .work-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-sans);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    margin-bottom: 28px;
+  }
+</style>

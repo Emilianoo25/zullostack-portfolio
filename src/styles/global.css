@@ -1,0 +1,209 @@
+@import "@fontsource-variable/inter/index.css";
+@import "@fontsource/instrument-serif/400.css";
+@import "@fontsource/instrument-serif/400-italic.css";
+@import "@fontsource-variable/jetbrains-mono/index.css";
+
+@import "tailwindcss";
+
+@theme {
+  --color-bg-base: #050505;
+  --color-bg-elevated: #0a0a0a;
+  --color-bg-card: #0d0d0d;
+  --color-border-subtle: #151515;
+  --color-border-default: #1f1f1f;
+  --color-border-strong: #2a2a2a;
+  --color-border-accent: #1a3a1a;
+
+  --color-text-primary: #fafafa;
+  --color-text-secondary: #a8a8a8;
+  --color-text-tertiary: #6a6a6a;
+  --color-text-muted: #888;
+
+  --color-accent: #4ade80;
+  --color-accent-glow: rgba(74, 222, 128, 0.06);
+  --color-accent-grid: rgba(74, 222, 128, 0.04);
+
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", "SF Mono", monospace;
+}
+
+:root {
+  --bg-base: #050505;
+  --bg-elevated: #0a0a0a;
+  --bg-card: #0d0d0d;
+  --border-subtle: #151515;
+  --border-default: #1f1f1f;
+  --border-strong: #2a2a2a;
+  --border-accent: #1a3a1a;
+  --text-primary: #fafafa;
+  --text-secondary: #a8a8a8;
+  --text-tertiary: #6a6a6a;
+  --text-muted: #888;
+  --accent: #4ade80;
+  --accent-glow: rgba(74, 222, 128, 0.06);
+  --accent-grid: rgba(74, 222, 128, 0.04);
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-serif: "Instrument Serif", Georgia, serif;
+  --font-mono: "JetBrains Mono Variable", "SF Mono", monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  background: var(--accent);
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0 0 6px 6px;
+  z-index: 9999;
+  text-decoration: none;
+  transition: top 0.1s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Focus visible */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* Dot pulse animation */
+@keyframes pulse-dot {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+}
+
+.pulse-dot {
+  animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot {
+    animation: none;
+  }
+}
+
+/* View transitions */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+}
+
+/* Prose styles for MDX content */
+.prose {
+  color: var(--text-secondary);
+  max-width: 680px;
+}
+
+.prose h1 {
+  font-family: var(--font-sans);
+  font-size: 2rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+  margin-top: 3rem;
+  line-height: 1.1;
+}
+
+.prose h1:first-child {
+  margin-top: 0;
+}
+
+.prose h2 {
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+  margin-top: 2.5rem;
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+
+.prose ul {
+  list-style: none;
+  margin-bottom: 1rem;
+}
+
+.prose ul li {
+  position: relative;
+  padding-left: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
+}
+
+.prose ul li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-family: var(--font-mono);
+}
+
+.prose strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.prose code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  background: var(--bg-elevated);
+  border: 0.5px solid var(--border-default);
+  border-radius: 4px;
+  padding: 0.1em 0.4em;
+  color: var(--accent);
+}

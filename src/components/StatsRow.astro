@@ -1,0 +1,88 @@
+---
+---
+<section class="stats-section" aria-label="Estadísticas">
+  <div class="stats-inner">
+    <div class="stat">
+      <span class="number"><span class="num">312</span><span class="sym">+</span></span>
+      <span class="label">productos migrados</span>
+    </div>
+    <div class="divider" aria-hidden="true"></div>
+    <div class="stat">
+      <span class="number"><span class="num">3.2</span><span class="sym">s</span></span>
+      <span class="label">load time promedio</span>
+    </div>
+    <div class="divider" aria-hidden="true"></div>
+    <div class="stat">
+      <span class="number"><span class="num">100</span><span class="sym">%</span></span>
+      <span class="label">clientes recomiendan</span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .stats-section {
+    border-top: 0.5px solid var(--border-default);
+    position: relative;
+    z-index: 1;
+  }
+
+  .stats-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    max-width: 200px;
+  }
+
+  .number {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .sym {
+    color: var(--accent);
+  }
+
+  .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+
+  .divider {
+    width: 0.5px;
+    height: 48px;
+    background: var(--border-default);
+    flex-shrink: 0;
+    margin: 0 40px;
+  }
+
+  @media (max-width: 480px) {
+    .stats-inner {
+      flex-direction: column;
+      gap: 32px;
+    }
+
+    .divider {
+      width: 40px;
+      height: 0.5px;
+      margin: 0;
+    }
+  }
+</style>

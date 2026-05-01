@@ -1,0 +1,182 @@
+---
+import Base from '../layouts/Base.astro';
+
+const calUrl = import.meta.env.PUBLIC_CAL_URL ?? 'https://cal.com/zullostack/15min';
+const email = import.meta.env.PUBLIC_EMAIL ?? 'emilianomarines7@gmail.com';
+const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX';
+---
+<Base
+  title="Contacto — ZulloStack"
+  description="Agendá una llamada de 15 minutos con Emi. Sin formularios, sin burocracia."
+>
+  <div class="page-wrap">
+    <div class="page-inner">
+      <header class="page-header">
+        <p class="eyebrow">— CONTACTO</p>
+        <h1 class="page-title">Hablemos.</h1>
+        <p class="page-sub">
+          Sin formularios. Elegí el canal que te resulte más cómodo.
+        </p>
+      </header>
+
+      <div class="options">
+        <a href={calUrl} class="option option--primary" target="_blank" rel="noopener noreferrer">
+          <div class="option-header">
+            <span class="option-badge">Recomendado</span>
+          </div>
+          <h2 class="option-title">Llamada de 15 min</h2>
+          <p class="option-desc">
+            Contame qué necesitás. Te digo si puedo ayudarte y cómo.
+            Sin compromiso, sin precio, solo claridad.
+          </p>
+          <span class="option-cta">agendar en Cal.com →</span>
+        </a>
+
+        <a href={`mailto:${email}`} class="option">
+          <div class="option-header">
+            <span class="option-label">Email</span>
+          </div>
+          <h2 class="option-title">Escribime</h2>
+          <p class="option-desc">
+            Si preferís explicarte por escrito o tenés algo concreto para compartir.
+          </p>
+          <span class="option-cta">{email} →</span>
+        </a>
+
+        <a href={whatsapp} class="option" target="_blank" rel="noopener noreferrer">
+          <div class="option-header">
+            <span class="option-label">WhatsApp</span>
+          </div>
+          <h2 class="option-title">WhatsApp</h2>
+          <p class="option-desc">
+            Para algo rápido o si ya tenés contexto de lo que necesitás.
+          </p>
+          <span class="option-cta">abrir chat →</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .page-wrap {
+    padding: 64px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .page-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    margin-bottom: 48px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .page-title {
+    font-family: var(--font-sans);
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .page-sub {
+    font-size: 16px;
+    color: var(--text-secondary);
+  }
+
+  .options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+
+  .option {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 28px;
+    background: var(--bg-card);
+    border: 0.5px solid var(--border-default);
+    border-radius: 12px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+    min-height: 240px;
+  }
+
+  .option:hover {
+    border-color: var(--border-strong);
+  }
+
+  .option--primary {
+    border-color: var(--border-accent);
+    background: linear-gradient(135deg, #0a0a0a 0%, #0d1410 100%);
+  }
+
+  .option--primary:hover {
+    border-color: rgba(74, 222, 128, 0.4);
+  }
+
+  .option-header {
+    min-height: 20px;
+  }
+
+  .option-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--accent);
+    border: 0.5px solid var(--border-accent);
+    border-radius: 100px;
+    padding: 3px 10px;
+    letter-spacing: 0.04em;
+  }
+
+  .option-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.06em;
+  }
+
+  .option-title {
+    font-family: var(--font-sans);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .option-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .option-cta {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+  }
+
+  @media (max-width: 768px) {
+    .options {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

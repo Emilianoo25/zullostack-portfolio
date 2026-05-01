@@ -1,0 +1,100 @@
+---
+const tools = [
+  {
+    category: 'frontend',
+    items: 'React · Next · Astro · Tailwind',
+  },
+  {
+    category: 'backend',
+    items: 'Node · Express · APIs REST',
+  },
+  {
+    category: 'commerce',
+    items: 'Tienda Nube · Empretienda · Shopify',
+  },
+  {
+    category: 'ai / agents',
+    items: 'Claude API · MCP · automatizaciones',
+  },
+];
+---
+<section class="toolbelt" id="stack" aria-labelledby="toolbelt-title">
+  <div class="toolbelt-inner">
+    <p class="eyebrow">— TOOLBELT</p>
+    <h2 id="toolbelt-title" class="section-title">Lo que tengo en la mochila.</h2>
+
+    <div class="tools-grid">
+      {tools.map((tool) => (
+        <div class="tool-card">
+          <p class="tool-category">{tool.category}</p>
+          <p class="tool-items">{tool.items}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .toolbelt {
+    padding: 80px 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .toolbelt-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-family: var(--font-sans);
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    margin-bottom: 32px;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  .tool-card {
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-default);
+    border-radius: 8px;
+    padding: 22px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .tool-category {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.04em;
+  }
+
+  .tool-items {
+    font-size: 13px;
+    color: #d0d0d0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 480px) {
+    .tools-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

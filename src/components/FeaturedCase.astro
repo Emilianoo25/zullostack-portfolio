@@ -1,0 +1,184 @@
+---
+---
+<article class="featured-card">
+  <a href="/casos/mateo-sanitarios" class="card-link" aria-label="Ver caso: Mateo Sanitarios">
+    <div class="circles-deco" aria-hidden="true">
+      <div class="circle circle-outer"></div>
+      <div class="circle circle-inner"></div>
+    </div>
+
+    <div class="card-header">
+      <div class="header-left">
+        <div class="badges">
+          <span class="badge badge-category">e-commerce</span>
+          <span class="badge badge-year">2025</span>
+        </div>
+        <h3 class="case-title">Mateo Sanitarios</h3>
+        <p class="case-subtitle">De catálogo en PDF a tienda online lista para vender</p>
+      </div>
+      <span class="arrow" aria-hidden="true">→</span>
+    </div>
+
+    <div class="columns">
+      <div class="col">
+        <p class="col-eyebrow">PROBLEMA</p>
+        <p class="col-text">Pasaban precios por WhatsApp, perdían ventas</p>
+      </div>
+      <div class="col">
+        <p class="col-eyebrow">SOLUCIÓN</p>
+        <p class="col-text">Catálogo en Tienda Nube, 312 SKUs, SEO local</p>
+      </div>
+      <div class="col">
+        <p class="col-eyebrow">RESULTADO</p>
+        <p class="col-text">Online en 3 semanas, indexado en Google</p>
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .featured-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0a0a0a 0%, #0d1410 100%);
+    border: 0.5px solid #1f2f1f;
+    border-radius: 12px;
+  }
+
+  .card-link {
+    display: block;
+    padding: 32px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .circles-deco {
+    position: absolute;
+    top: -80px;
+    right: -80px;
+    pointer-events: none;
+  }
+
+  .circle {
+    position: absolute;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .circle-outer {
+    width: 280px;
+    height: 280px;
+    border: 0.5px solid rgba(74, 222, 128, 0.08);
+  }
+
+  .circle-inner {
+    width: 180px;
+    height: 180px;
+    border: 0.5px solid rgba(74, 222, 128, 0.15);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .badges {
+    display: flex;
+    gap: 8px;
+  }
+
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-category {
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--accent);
+    border: 0.5px solid var(--border-accent);
+  }
+
+  .badge-year {
+    background: transparent;
+    color: var(--text-tertiary);
+    border: 0.5px solid var(--border-default);
+  }
+
+  .case-title {
+    font-family: var(--font-sans);
+    font-size: 24px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .case-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .arrow {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    color: var(--accent);
+    padding-top: 4px;
+    transition: transform 0.15s;
+  }
+
+  .card-link:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .col {
+    padding-left: 14px;
+    border-left: 2px solid var(--accent);
+  }
+
+  .col-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-tertiary);
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .col-text {
+    font-size: 13px;
+    color: #d0d0d0;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 640px) {
+    .columns {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .card-link {
+      padding: 24px;
+    }
+  }
+</style>

@@ -1,0 +1,39 @@
+---
+title: "Mateo Sanitarios"
+client: "Mateo Sanitarios"
+location: "Villa Madero, Buenos Aires"
+year: 2025
+category: "e-commerce"
+tags: ["Tienda Nube", "Catálogo", "SEO local", "Migración de datos"]
+problem: "Pasaban precios por WhatsApp, perdían ventas"
+solution: "Catálogo en Tienda Nube, 312 SKUs, SEO local"
+result: "Online en 3 semanas, indexado en Google"
+featured: true
+publishedAt: 2025-11-01
+---
+
+# El problema
+
+Mateo Sanitarios es un comercio de sanitarios y grifería en Villa Madero. Atendían 100% por WhatsApp y mostrador físico. Cada cliente que preguntaba por un producto requería que alguien del equipo abriera el catálogo PDF de 2026, buscara el producto, copiara el precio, y respondiera. Multiplicado por decenas de consultas por día, era horas de trabajo manual y consultas perdidas.
+
+# El alcance
+
+Diseñar e implementar un catálogo online completo con los 312 productos del catálogo PDF, integrado a Tienda Nube, listo para que el cliente actualice precios sin tocar código.
+
+# Qué hice
+
+- Extracción y normalización de 312 SKUs desde el PDF (con validación cruzada por categoría)
+- Enriquecimiento de cada producto: marca, SEO title, tags, descripción corta
+- Mapeo al formato de import CSV de Tienda Nube
+- Setup de tienda en modo catálogo (sin checkout, las consultas siguen yendo por WhatsApp)
+- Carga de productos por lotes con verificación posterior
+
+# Resultado
+
+- Tienda online publicada e indexada en Google
+- Cliente puede compartir link de productos puntuales por WhatsApp en vez de buscar en el PDF
+- Base lista para activar checkout cuando el cliente decida vender online
+
+# Stack
+
+Tienda Nube · Python (extracción PDF) · Pandas (normalización) · CSV import

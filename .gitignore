@@ -1,0 +1,26 @@
+# Build output
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Other projects in this folder (not part of ZulloStack portfolio)
+AGARA/
+Elixir Premium/
+Griferia/
+Peluqueria/
+Pruebas Gemini/
+Vivero/
+como en casa/
+como-en-casa/
+mateo-sanitarios/
+pokemon-api/
+pokemon-crud/
