@@ -8,9 +8,7 @@ import Base from '../layouts/Base.astro';
   <div class="page-wrap">
     <div class="page-inner">
 
-      <div class="avatar" aria-label="Foto de Emi Zullo">
-        <span aria-hidden="true">EZ</span>
-      </div>
+      <img src="/emi.png" alt="Foto de Emi Zullo" class="avatar" width="120" height="120" />
 
       <h1 class="page-title">Hola, soy Emi.</h1>
       <p class="page-lead">
@@ -90,16 +88,10 @@ import Base from '../layouts/Base.astro';
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    background: var(--bg-elevated);
     border: 0.5px solid var(--border-default);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-mono);
-    font-size: 32px;
-    font-weight: 500;
-    color: var(--accent);
+    object-fit: cover;
     margin-bottom: 28px;
+    display: block;
   }
 
   .page-title {
