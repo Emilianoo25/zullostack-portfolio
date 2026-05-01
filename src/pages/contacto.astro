@@ -1,39 +1,78 @@
 ---
 import Base from '../layouts/Base.astro';
+import HeroScrub from '../components/HeroScrub.astro';
 
-const calUrl = import.meta.env.PUBLIC_CAL_URL ?? 'https://cal.com/zullostack/15min';
-const email = import.meta.env.PUBLIC_EMAIL ?? 'emipitukino25@outlook.es';
-const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX';
+const calUrl    = import.meta.env.PUBLIC_CAL_URL  ?? 'https://cal.com/zullostack/15min';
+const email     = import.meta.env.PUBLIC_EMAIL    ?? 'emipitukino25@outlook.es';
+const whatsapp  = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX';
 ---
 <Base
   title="Contacto — ZulloStack"
-  description="Agendá una llamada de 15 minutos con Emi. Sin formularios, sin burocracia."
+  description="Soy Emi. Agendá una llamada de 15 minutos y te digo si puedo ayudarte."
 >
-  <div class="page-wrap">
-    <div class="page-inner">
-      <header class="page-header">
+  <!-- ── About hero ─────────────────────────────── -->
+  <HeroScrub
+    titleTop="Emi"
+    titleBottom="Zullo"
+    imageSrc="/emi.png"
+    imageAlt="Foto de Emi Zullo"
+  />
+
+  <!-- ── Bio ───────────────────────────────────── -->
+  <div class="bio-wrap">
+    <div class="bio-inner">
+      <h1 class="bio-title">Hola, soy Emi.</h1>
+      <p class="bio-lead">
+        Trabajo como <strong>ZulloStack</strong> — desarrollo web y automatizaciones con IA para PyMEs en Buenos Aires.
+      </p>
+
+      <div class="bio-sections">
+        <section aria-labelledby="b1">
+          <p class="eyebrow">01 / quién</p>
+          <h2 id="b1">¿Qué hago?</h2>
+          <p>Soluciono problemas. Si tu negocio pierde dos horas por día respondiendo los mismos mails, o pasás precios por WhatsApp como si fuera 2010, o tenés un sistema que te ata las manos — yo busco la salida. Te la propongo. Que la tomes o no, es decisión tuya. Pero la solución te la doy.</p>
+        </section>
+
+        <section aria-labelledby="b2">
+          <p class="eyebrow">02 / cabeza</p>
+          <h2 id="b2">Cómo pienso</h2>
+          <p>Tengo TDAH. Mi cabeza no para. Imagina escenarios todo el tiempo, anticipa lo que puede salir mal, conecta cosas que parecen no tener nada que ver. Lo que para algunos es un problema, para mí es la herramienta principal de trabajo: veo el problema y la solución casi al mismo tiempo.</p>
+          <p>No leo manuales — aprendo construyendo. Si algo me genera curiosidad, lo abro, lo rompo, lo entiendo. Y solo te explico una cosa cuando la entiendo de verdad.</p>
+        </section>
+
+        <section aria-labelledby="b3">
+          <p class="eyebrow">03 / método</p>
+          <h2 id="b3">Cómo trabajo</h2>
+          <ul class="method-list" role="list">
+            <li>Te hablo en humano, no en técnico. Si necesitás una traducción, está mal explicado.</li>
+            <li>Hago diagnóstico antes de cobrar. Si tu problema no necesita lo que ofrezco, te lo digo.</li>
+            <li>Trabajo por objetivos, no por horario. Necesito flexibilidad para producir bien.</li>
+            <li>No improviso sobre la marcha cambios grandes. Lo que arrancamos lo terminamos.</li>
+          </ul>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Contacto ───────────────────────────────── -->
+  <div class="contact-wrap" id="contacto">
+    <div class="contact-inner">
+      <header class="contact-header">
         <p class="eyebrow">— CONTACTO</p>
-        <h1 class="page-title">Hablemos.</h1>
-        <p class="page-sub">
-          Sin formularios. Elegí el canal que te resulte más cómodo.
+        <h2 class="contact-title">Hablemos.</h2>
+        <p class="contact-sub">
+          Lo más útil es una llamada de 15 minutos. Me contás qué problema tenés, te digo si puedo
+          resolverlo, cuánto cuesta, y cuánto tarda. Si no es para mí, te digo a quién buscar.
         </p>
       </header>
-
-      <p class="intro-text">
-        Lo más útil es una llamada de 15 minutos. Me contás qué problema tenés, te digo si puedo
-        resolverlo, cuánto cuesta, y cuánto tarda. Si no es para mí, te digo a quién buscar.
-      </p>
 
       <div class="options">
         <a href={calUrl} class="option option--primary" target="_blank" rel="noopener noreferrer">
           <div class="option-header">
             <span class="option-badge">Recomendado</span>
           </div>
-          <h2 class="option-title">Llamada de 15 min</h2>
-          <p class="option-desc">
-            Contame qué necesitás. Te digo si puedo ayudarte y cómo.
-            Sin compromiso, sin precio, solo claridad.
-          </p>
+          <h3 class="option-title">Llamada de 15 min</h3>
+          <p class="option-desc">Contame qué necesitás. Te digo si puedo ayudarte y cómo. Sin compromiso, sin precio, solo claridad.</p>
           <span class="option-cta">agendar en Cal.com →</span>
         </a>
 
@@ -41,10 +80,8 @@ const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX'
           <div class="option-header">
             <span class="option-label">Email</span>
           </div>
-          <h2 class="option-title">Escribime</h2>
-          <p class="option-desc">
-            Si preferís explicarte por escrito o tenés algo concreto para compartir.
-          </p>
+          <h3 class="option-title">Escribime</h3>
+          <p class="option-desc">Si preferís explicarte por escrito o tenés algo concreto para compartir.</p>
           <span class="option-cta">{email} →</span>
         </a>
 
@@ -52,10 +89,8 @@ const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX'
           <div class="option-header">
             <span class="option-label">WhatsApp</span>
           </div>
-          <h2 class="option-title">WhatsApp</h2>
-          <p class="option-desc">
-            Para algo rápido o si ya tenés contexto de lo que necesitás.
-          </p>
+          <h3 class="option-title">WhatsApp</h3>
+          <p class="option-desc">Para algo rápido o si ya tenés contexto de lo que necesitás.</p>
           <span class="option-cta">abrir chat →</span>
         </a>
       </div>
@@ -64,30 +99,124 @@ const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX'
 </Base>
 
 <style>
-  .page-wrap {
-    padding: 64px 24px 80px;
+  /* ── Bio ── */
+  .bio-wrap {
+    padding: 80px 24px 72px;
     position: relative;
     z-index: 1;
   }
 
-  .page-inner {
-    max-width: 1080px;
+  .bio-inner {
+    max-width: 680px;
     margin: 0 auto;
   }
 
-  .page-header {
-    margin-bottom: 48px;
+  .bio-title {
+    font-family: var(--font-sans);
+    font-size: 48px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .bio-lead {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 52px;
+  }
+
+  .bio-lead strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .bio-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .eyebrow {
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--accent);
-    letter-spacing: 1px;
-    margin-bottom: 14px;
+    letter-spacing: 0.06em;
   }
 
-  .page-title {
+  h2 {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  p {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+
+  .method-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    margin-top: 4px;
+  }
+
+  .method-list li {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding-left: 22px;
+    padding-bottom: 14px;
+    border-bottom: 0.5px solid var(--border-subtle);
+    margin-bottom: 14px;
+    position: relative;
+  }
+
+  .method-list li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .method-list li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: 14px;
+  }
+
+  /* ── Contacto ── */
+  .contact-wrap {
+    padding: 80px 24px 96px;
+    position: relative;
+    z-index: 1;
+    border-top: 0.5px solid var(--border-default);
+  }
+
+  .contact-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  .contact-header {
+    margin-bottom: 48px;
+  }
+
+  .contact-title {
     font-family: var(--font-sans);
     font-size: clamp(40px, 6vw, 64px);
     font-weight: 500;
@@ -97,17 +226,11 @@ const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX'
     margin-bottom: 16px;
   }
 
-  .page-sub {
+  .contact-sub {
     font-size: 16px;
     color: var(--text-secondary);
-  }
-
-  .intro-text {
-    font-size: 16px;
-    color: var(--text-secondary);
-    line-height: 1.7;
     max-width: 560px;
-    margin-bottom: 32px;
+    line-height: 1.7;
   }
 
   .options {
@@ -130,27 +253,21 @@ const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX'
     min-height: 240px;
   }
 
-  .option:hover {
-    border-color: var(--border-strong);
-  }
+  .option:hover { border-color: var(--border-strong); }
 
   .option--primary {
     border-color: var(--border-accent);
     background: linear-gradient(135deg, #0a0a0a 0%, #0d1410 100%);
   }
 
-  .option--primary:hover {
-    border-color: rgba(74, 222, 128, 0.4);
-  }
+  .option--primary:hover { border-color: rgba(74,222,128,0.4); }
 
-  .option-header {
-    min-height: 20px;
-  }
+  .option-header { min-height: 20px; }
 
   .option-badge {
     font-family: var(--font-mono);
     font-size: 10px;
-    background: rgba(74, 222, 128, 0.1);
+    background: rgba(74,222,128,0.1);
     color: var(--accent);
     border: 0.5px solid var(--border-accent);
     border-radius: 100px;
@@ -188,8 +305,6 @@ const whatsapp = import.meta.env.PUBLIC_WHATSAPP ?? 'https://wa.me/54XXXXXXXXXX'
   }
 
   @media (max-width: 768px) {
-    .options {
-      grid-template-columns: 1fr;
-    }
+    .options { grid-template-columns: 1fr; }
   }
 </style>
