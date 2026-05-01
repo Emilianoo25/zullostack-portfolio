@@ -3,43 +3,72 @@ import Base from '../layouts/Base.astro';
 ---
 <Base
   title="Sobre mí — ZulloStack"
-  description="Soy Emi, desarrollador full-stack y fundador de ZulloStack. Construyo sitios y agentes de IA para PyMEs en Buenos Aires."
+  description="Soy Emi. Veo problemas y la solución casi al mismo tiempo. Desarrollo web y automatizaciones con IA para PyMEs en Buenos Aires."
 >
   <div class="page-wrap">
     <div class="page-inner">
-      <header class="page-header">
-        <p class="eyebrow">— SOBRE MÍ</p>
-        <h1 class="page-title">Emi Zullo.</h1>
-      </header>
 
-      <div class="content-grid">
-        <div class="bio">
-          <p>
-            Soy desarrollador full-stack con foco en resultados de negocio. Trabajo con PyMEs
-            en Buenos Aires que quieren vender más por internet o automatizar tareas repetitivas
-            usando IA. No hago webs decorativas: hago webs que trabajan.
-          </p>
-          <p>
-            Empecé como desarrollador freelance hace varios años. Con el tiempo me especialicé
-            en commerce y automatización, y hoy combino las dos cosas bajo ZulloStack.
-            La mayoría de mis clientes llegan por recomendación.
-          </p>
-          <p>
-            Cuando no estoy programando, estoy leyendo sobre sistemas, aprendiendo sobre IA
-            aplicada, o tomando mate en Villa del Parque.
-          </p>
-        </div>
+      <div class="avatar" aria-label="Foto de Emi Zullo">
+        <span aria-hidden="true">EZ</span>
+      </div>
 
-        <aside class="principles">
-          <h2 class="principles-title">Cómo trabajo</h2>
-          <ul class="principles-list" role="list">
-            <li>Hablo claro, sin tecnicismos vacíos</li>
-            <li>Te muestro avances cada semana</li>
-            <li>Si no puedo ayudarte, te lo digo</li>
-            <li>No empiezo sin entender tu negocio</li>
-            <li>El código es mío, los resultados son tuyos</li>
+      <h1 class="page-title">Hola, soy Emi.</h1>
+      <p class="page-lead">
+        Trabajo como <strong>ZulloStack</strong> — desarrollo web y automatizaciones con IA para PyMEs en Buenos Aires.
+      </p>
+
+      <div class="sections">
+
+        <section aria-labelledby="s1-title">
+          <p class="eyebrow">01 / quién</p>
+          <h2 id="s1-title">¿Qué hago?</h2>
+          <p>
+            Soluciono problemas. Si tu negocio pierde dos horas por día respondiendo los mismos mails,
+            o pasás precios por WhatsApp como si fuera 2010, o tenés un sistema que te ata las manos
+            — yo busco la salida. Te la propongo. Que la tomes o no, es decisión tuya.
+            Pero la solución te la doy.
+          </p>
+        </section>
+
+        <section aria-labelledby="s2-title">
+          <p class="eyebrow">02 / cabeza</p>
+          <h2 id="s2-title">Cómo pienso</h2>
+          <p>
+            Tengo TDAH. Mi cabeza no para. Imagina escenarios todo el tiempo, anticipa lo que puede
+            salir mal, conecta cosas que parecen no tener nada que ver. Lo que para algunos es un
+            problema, para mí es la herramienta principal de trabajo: veo el problema y la solución
+            casi al mismo tiempo.
+          </p>
+          <p>
+            No leo manuales — aprendo construyendo. Si algo me genera curiosidad, lo abro, lo rompo,
+            lo entiendo. Y solo te explico una cosa cuando la entiendo de verdad. Si no te la puedo
+            explicar a vos (que no sos dev), es porque todavía no la entendí.
+          </p>
+        </section>
+
+        <section aria-labelledby="s3-title">
+          <p class="eyebrow">03 / método</p>
+          <h2 id="s3-title">Cómo trabajo</h2>
+          <ul class="method-list" role="list">
+            <li>Te hablo en humano, no en técnico. Si necesitás una traducción, está mal explicado.</li>
+            <li>Hago diagnóstico antes de cobrar. Si tu problema no necesita lo que ofrezco, te lo digo.</li>
+            <li>Trabajo por objetivos, no por horario. Necesito flexibilidad para producir bien.</li>
+            <li>No improviso sobre la marcha cambios grandes. Lo que arrancamos lo terminamos.</li>
           </ul>
-        </aside>
+        </section>
+
+        <section aria-labelledby="s4-title">
+          <p class="eyebrow">04 / mantra</p>
+          <h2 id="s4-title">Mi mantra</h2>
+          <blockquote>
+            Si algo tiene un problema, también tiene <em>una</em> solución.
+          </blockquote>
+          <p>
+            No siempre la tenés vos. A veces hay que pedir ayuda, romper el problema en pedazos,
+            o cambiar la pregunta. Pero la solución existe. Mi trabajo es encontrarla.
+          </p>
+        </section>
+
       </div>
     </div>
   </div>
@@ -47,98 +76,137 @@ import Base from '../layouts/Base.astro';
 
 <style>
   .page-wrap {
-    padding: 64px 24px 80px;
+    padding: 64px 24px 96px;
     position: relative;
     z-index: 1;
   }
 
   .page-inner {
-    max-width: 1080px;
+    max-width: 680px;
     margin: 0 auto;
   }
 
-  .page-header {
-    margin-bottom: 48px;
+  .avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 0.5px solid var(--border-default);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--accent);
+    margin-bottom: 28px;
+  }
+
+  .page-title {
+    font-family: var(--font-sans);
+    font-size: 48px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .page-lead {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 56px;
+  }
+
+  .page-lead strong {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  .sections {
+    display: flex;
+    flex-direction: column;
+    gap: 52px;
+  }
+
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .eyebrow {
     font-family: var(--font-mono);
     font-size: 11px;
     color: var(--accent);
-    letter-spacing: 1px;
-    margin-bottom: 14px;
+    letter-spacing: 0.06em;
+    margin-bottom: 2px;
   }
 
-  .page-title {
+  h2 {
     font-family: var(--font-sans);
-    font-size: clamp(40px, 6vw, 64px);
+    font-size: 22px;
     font-weight: 500;
     color: var(--text-primary);
-    letter-spacing: -0.04em;
-    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 4px;
   }
 
-  .content-grid {
-    display: grid;
-    grid-template-columns: 1fr 340px;
-    gap: 64px;
-    align-items: start;
-  }
-
-  .bio {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .bio p {
-    font-size: 16px;
+  p {
+    font-size: 17px;
     color: var(--text-secondary);
     line-height: 1.7;
   }
 
-  .principles {
-    background: var(--bg-elevated);
-    border: 0.5px solid var(--border-default);
-    border-radius: 8px;
-    padding: 28px;
-  }
-
-  .principles-title {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 0.06em;
-    margin-bottom: 20px;
-  }
-
-  .principles-list {
+  .method-list {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    margin-top: 4px;
   }
 
-  .principles-list li {
-    font-size: 13px;
-    color: #d0d0d0;
-    padding-left: 18px;
+  .method-list li {
+    font-size: 17px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    padding-left: 22px;
+    padding-bottom: 14px;
+    border-bottom: 0.5px solid var(--border-subtle);
+    margin-bottom: 14px;
     position: relative;
-    line-height: 1.5;
   }
 
-  .principles-list li::before {
-    content: "—";
+  .method-list li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+  }
+
+  .method-list li::before {
+    content: "→";
     position: absolute;
     left: 0;
     color: var(--accent);
     font-family: var(--font-mono);
+    font-size: 14px;
   }
 
-  @media (max-width: 768px) {
-    .content-grid {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
+  blockquote {
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 24px;
+    color: var(--text-primary);
+    line-height: 1.4;
+    margin: 6px 0;
+  }
+
+  blockquote em {
+    font-style: normal;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-underline-offset: 3px;
   }
 </style>
