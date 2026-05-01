@@ -1,0 +1,194 @@
+---
+interface Props {
+  titleTop: string;
+  titleBottom: string;
+  imageSrc: string;
+  imageAlt: string;
+}
+const { titleTop, titleBottom, imageSrc, imageAlt } = Astro.props;
+---
+
+<section class="hs-section" aria-label={`${titleTop} ${titleBottom}`}>
+  <div class="hs-sticky">
+    <div class="hs-bg" aria-hidden="true"></div>
+    <div class="hs-vignette" aria-hidden="true"></div>
+
+    <div class="hs-content">
+      <h2 class="hs-title hs-title--top" aria-hidden="true">{titleTop}</h2>
+
+      <div class="hs-card">
+        <img src={imageSrc} alt={imageAlt} class="hs-img" />
+      </div>
+
+      <h2 class="hs-title hs-title--bottom" aria-hidden="true">{titleBottom}</h2>
+    </div>
+
+    <p class="hs-label">sobre mí ↓</p>
+  </div>
+</section>
+
+<style>
+  .hs-section {
+    position: relative;
+    width: 100%;
+    height: 480vh;
+    overflow: clip;
+  }
+
+  .hs-sticky {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .hs-bg {
+    position: absolute;
+    inset: 0;
+    background: #050505;
+    z-index: 0;
+  }
+
+  .hs-vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .hs-content {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .hs-title {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: clamp(4rem, 14vw, 11rem);
+    line-height: 0.85;
+    letter-spacing: -0.04em;
+    color: #fafafa;
+    text-transform: uppercase;
+    will-change: transform, opacity;
+    user-select: none;
+  }
+
+  .hs-card {
+    position: relative;
+    width: min(72vw, calc(65svh * 0.8));
+    aspect-ratio: 0.8 / 1;
+    border-radius: 12px;
+    overflow: hidden;
+    will-change: transform;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.7);
+    ring: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .hs-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .hs-label {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    z-index: 4;
+    white-space: nowrap;
+  }
+</style>
+
+<script>
+  import gsap from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const section = document.querySelector('.hs-section') as HTMLElement;
+  if (section) {
+    const card      = section.querySelector('.hs-card') as HTMLElement;
+    const titleTop  = section.querySelector('.hs-title--top') as HTMLElement;
+    const titleBot  = section.querySelector('.hs-title--bottom') as HTMLElement;
+    const label     = section.querySelector('.hs-label') as HTMLElement;
+
+    const startScale = () => window.innerWidth < 768 ? 0.78 : 0.58;
+
+    const immerseScale = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const aspect = 0.8;
+      const baseW  = Math.min(vw * 0.72, vh * 0.65 * aspect);
+      const baseH  = baseW / aspect;
+      return Math.max(vw / baseW, vh / baseH) * 1.06;
+    };
+
+    // Entry animation
+    const entryTl = gsap.timeline({ delay: 0.15 });
+    entryTl
+      .from(card,     { opacity: 0, scale: 0.88, duration: 1.1, ease: 'power3.out' })
+      .from(titleTop, { opacity: 0, y:  40, duration: 0.9, ease: 'expo.out' }, 0.3)
+      .from(titleBot, { opacity: 0, y: -40, duration: 0.9, ease: 'expo.out' }, 0.42)
+      .from(label,    { opacity: 0, duration: 0.8, ease: 'power2.out' }, 0.7);
+
+    // Set initial card scale
+    gsap.set(card, { scale: startScale(), transformOrigin: '50% 50%' });
+
+    // Scroll choreography
+    const master = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end:   'bottom bottom',
+        scrub: 0.5,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    // Phase 1 (0→15%): card scales to 1, titles slide out
+    master
+      .to(card, { scale: 1, ease: 'power2.out', duration: 0.15 }, 0)
+      .to(titleTop, {
+        x: () => window.innerWidth < 768 ? '-75vw' : '-62vw',
+        ease: 'power2.inOut', duration: 0.15,
+      }, 0)
+      .to(titleBot, {
+        x: () => window.innerWidth < 768 ? '75vw' : '62vw',
+        ease: 'power2.inOut', duration: 0.15,
+      }, 0)
+      .to(label, { opacity: 0, duration: 0.08 }, 0);
+
+    // Phase 2 (15→78%): card fills viewport, titles fade out
+    master
+      .to(card, { scale: immerseScale, ease: 'power2.in', duration: 0.63 }, 0.15)
+      .to(titleTop, { opacity: 0, ease: 'power1.in', duration: 0.2 }, 0.15)
+      .to(titleBot, { opacity: 0, ease: 'power1.in', duration: 0.2 }, 0.15);
+
+    // Phase 3 (78→100%): card returns, titles come back
+    master
+      .to(card, { scale: startScale, ease: 'power3.inOut', duration: 0.22 }, 0.78)
+      .to(titleTop, { x: 0, opacity: 1, ease: 'power2.inOut', duration: 0.22 }, 0.78)
+      .to(titleBot, { x: 0, opacity: 1, ease: 'power2.inOut', duration: 0.22 }, 0.78);
+
+    ScrollTrigger.refresh();
+  }
+</script>

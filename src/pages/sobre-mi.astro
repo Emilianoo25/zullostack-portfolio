@@ -1,14 +1,20 @@
 ---
 import Base from '../layouts/Base.astro';
+import HeroScrub from '../components/HeroScrub.astro';
 ---
 <Base
   title="Sobre mí — ZulloStack"
   description="Soy Emi. Veo problemas y la solución casi al mismo tiempo. Desarrollo web y automatizaciones con IA para PyMEs en Buenos Aires."
 >
+  <HeroScrub
+    titleTop="Emi"
+    titleBottom="Zullo"
+    imageSrc="/emi-hero.png"
+    imageAlt="Foto de Emi Zullo"
+  />
+
   <div class="page-wrap">
     <div class="page-inner">
-
-      <img src="/emi.png" alt="Foto de Emi Zullo" class="avatar" width="120" height="120" />
 
       <h1 class="page-title">Hola, soy Emi.</h1>
       <p class="page-lead">
@@ -74,7 +80,7 @@ import Base from '../layouts/Base.astro';
 
 <style>
   .page-wrap {
-    padding: 64px 24px 96px;
+    padding: 80px 24px 96px;
     position: relative;
     z-index: 1;
   }
@@ -82,16 +88,6 @@ import Base from '../layouts/Base.astro';
   .page-inner {
     max-width: 680px;
     margin: 0 auto;
-  }
-
-  .avatar {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 0.5px solid var(--border-default);
-    object-fit: cover;
-    margin-bottom: 28px;
-    display: block;
   }
 
   .page-title {
