@@ -45,15 +45,15 @@ const { titleTop, titleBottom, imageSrc, imageAlt } = Astro.props;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     width: 100%;
   }
 
   .hs-title {
     font-family: var(--font-sans);
     font-weight: 500;
-    font-size: clamp(3.2rem, 11vw, 7.5rem);
-    line-height: 0.88;
+    font-size: clamp(2.2rem, 7vw, 4.2rem);
+    line-height: 0.9;
     letter-spacing: -0.04em;
     color: var(--text-primary);
     text-transform: uppercase;
@@ -62,8 +62,9 @@ const { titleTop, titleBottom, imageSrc, imageAlt } = Astro.props;
     text-align: center;
   }
 
+  /* card chico al inicio — JS lo escala en scroll */
   .hs-card {
-    width: min(52vw, 220px);
+    width: min(38vw, 160px);
     aspect-ratio: 3 / 4;
     border-radius: 10px;
     overflow: hidden;
@@ -74,7 +75,10 @@ const { titleTop, titleBottom, imageSrc, imageAlt } = Astro.props;
 
   @media (min-width: 640px) {
     .hs-card {
-      width: min(28vw, 260px);
+      width: min(20vw, 200px);
+    }
+    .hs-title {
+      font-size: clamp(2.8rem, 6vw, 5rem);
     }
   }
 
@@ -107,55 +111,55 @@ const { titleTop, titleBottom, imageSrc, imageAlt } = Astro.props;
 
   const section  = document.querySelector('.hs-section') as HTMLElement;
   if (section) {
-    const card      = section.querySelector('.hs-card')         as HTMLElement;
-    const titleTop  = section.querySelector('.hs-title--top')   as HTMLElement;
+    const card      = section.querySelector('.hs-card')          as HTMLElement;
+    const titleTop  = section.querySelector('.hs-title--top')    as HTMLElement;
     const titleBot  = section.querySelector('.hs-title--bottom') as HTMLElement;
-    const hint      = section.querySelector('.hs-hint')         as HTMLElement;
+    const hint      = section.querySelector('.hs-hint')          as HTMLElement;
 
-    // Entry: todo aparece suavemente
+    // Entrada suave
     gsap.timeline({ delay: 0.1 })
-      .from(card,     { opacity: 0, scale: 0.9, duration: 0.9, ease: 'power3.out' })
-      .from(titleTop, { opacity: 0, y:  28, duration: 0.75, ease: 'expo.out' }, 0.25)
-      .from(titleBot, { opacity: 0, y: -28, duration: 0.75, ease: 'expo.out' }, 0.35)
-      .from(hint,     { opacity: 0, duration: 0.6 }, 0.7);
+      .from(card,     { opacity: 0, scale: 0.88, duration: 0.9, ease: 'power3.out' })
+      .from(titleTop, { opacity: 0, y:  22, duration: 0.7, ease: 'expo.out' }, 0.2)
+      .from(titleBot, { opacity: 0, y: -22, duration: 0.7, ease: 'expo.out' }, 0.3)
+      .from(hint,     { opacity: 0, duration: 0.5 }, 0.65);
 
-    // Scroll: nombre izq, apellido der, foto zoom suave
+    // Scroll: foto zoom 1→1.45, nombres se van a los lados
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: section,
         start: 'top top',
         end:   'bottom bottom',
-        scrub: 0.6,
+        scrub: 0.7,
         invalidateOnRefresh: true,
       },
     });
 
     tl
       .to(titleTop, {
-        x: () => -(window.innerWidth * 0.55),
+        x: () => -(window.innerWidth * 0.6),
         opacity: 0,
         ease: 'power2.inOut',
-        duration: 0.55,
+        duration: 0.5,
       }, 0)
       .to(titleBot, {
-        x: () => window.innerWidth * 0.55,
+        x: () => window.innerWidth * 0.6,
         opacity: 0,
+        ease: 'power2.inOut',
+        duration: 0.5,
+      }, 0)
+      .to(card, {
+        scale: 1.45,
         ease: 'power2.inOut',
         duration: 0.55,
       }, 0)
-      .to(card, {
-        scale: 1.12,
-        ease: 'power1.inOut',
-        duration: 0.55,
-      }, 0)
-      .to(hint, { opacity: 0, duration: 0.15 }, 0)
-      // al final la card también se va suavemente
+      .to(hint, { opacity: 0, duration: 0.1 }, 0)
+      // al final la card se va hacia arriba
       .to(card, {
         opacity: 0,
-        y: -30,
+        y: -40,
         ease: 'power2.in',
-        duration: 0.4,
-      }, 0.6);
+        duration: 0.38,
+      }, 0.62);
 
     ScrollTrigger.refresh();
   }
