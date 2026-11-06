@@ -1,0 +1,141 @@
+---
+/**
+ * Ilustraciones vectoriales planas (mismo estilo que el logo).
+ * Se usan como relleno cuando todavía no hay foto real.
+ * Sin gradientes con id: el flipbook clona y oculta páginas,
+ * y las referencias url(#id) se rompen en nodos display:none.
+ */
+import type { Ilustracion } from '../../data/dulce-ruby';
+
+interface Props {
+  tipo: Ilustracion;
+  class?: string;
+  seed?: number;
+}
+
+const { tipo, class: className = '', seed = 7 } = Astro.props;
+
+// PRNG determinístico → mismo dibujo en cada build
+function mulberry32(a: number) {
+  return () => {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+const rnd = mulberry32(seed);
+const f = (n: number) => n.toFixed(1);
+
+// Catmull-Rom cerrado → path suave
+function smoothClosed(pts: [number, number][]) {
+  const n = pts.length;
+  let d = `M${f(pts[0][0])},${f(pts[0][1])}`;
+  for (let i = 0; i < n; i++) {
+    const p0 = pts[(i - 1 + n) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+    const c1 = [p1[0] + (p2[0] - p0[0]) / 6, p1[1] + (p2[1] - p0[1]) / 6];
+    const c2 = [p2[0] - (p3[0] - p1[0]) / 6, p2[1] - (p3[1] - p1[1]) / 6];
+    d += ` C${f(c1[0])},${f(c1[1])} ${f(c2[0])},${f(c2[1])} ${f(p2[0])},${f(p2[1])}`;
+  }
+  return d + 'Z';
+}
+const circle = (cx: number, cy: number, r: number) =>
+  `M${cx - r},${cy} a${r},${r} 0 1,0 ${r * 2},0 a${r},${r} 0 1,0 ${-r * 2},0Z`;
+
+// ── DONA ─────────────────────────────────────────
+const C = 100;
+const glazePts: [number, number][] = [];
+const N = 64;
+for (let i = 0; i < N; i++) {
+  const t = (i / N) * Math.PI * 2;
+  // ondas + "chorreados" más largos abajo
+  const drip = Math.max(0, Math.sin(t * 5 + 0.9)) ** 3 * (Math.sin(t) > 0 ? 9 : 4);
+  const r = 61 + 3.2 * Math.sin(t * 9 + 1.3) + drip;
+  glazePts.push([C + Math.cos(t) * r, C + Math.sin(t) * r * 0.94]);
+}
+const glazePath = smoothClosed(glazePts) + ' ' + circle(C, C - 1, 25);
+const doughPath = circle(C, C + 4, 80) + ' ' + circle(C, C + 1, 21);
+const doughShade = circle(C, C + 9, 80) + ' ' + circle(C, C + 1, 21);
+
+const sprinkleColors = ['#8EC1E6', '#F3D37A', '#F49FB6', '#FFFFFF', '#A9DCC4', '#F49FB6', '#8EC1E6'];
+const sprinkles: { x: number; y: number; r: number; c: string }[] = [];
+let guard = 0;
+while (sprinkles.length < 30 && guard++ < 600) {
+  const a = rnd() * Math.PI * 2;
+  const rad = 33 + rnd() * 25;
+  const x = C + Math.cos(a) * rad;
+  const y = C + Math.sin(a) * rad * 0.94;
+  if (sprinkles.some((s) => Math.hypot(s.x - x, s.y - y) < 10)) continue;
+  sprinkles.push({ x, y, r: rnd() * 180, c: sprinkleColors[sprinkles.length % sprinkleColors.length] });
+}
+
+// ── CHIPA ────────────────────────────────────────
+const chipas = [
+  { cx: 66, cy: 118, rx: 44, ry: 38 },
+  { cx: 136, cy: 120, rx: 42, ry: 36 },
+  { cx: 101, cy: 88, rx: 46, ry: 40 },
+];
+const spots = chipas.map((ch) =>
+  Array.from({ length: 7 }, () => {
+    const a = rnd() * Math.PI * 2;
+    const d = Math.sqrt(rnd()) * 0.62;
+    return {
+      x: ch.cx + Math.cos(a) * ch.rx * d,
+      y: ch.cy + Math.sin(a) * ch.ry * d,
+      rx: 2 + rnd() * 3.5,
+      ry: 1.4 + rnd() * 2,
+      rot: rnd() * 180,
+    };
+  }),
+);
+---
+{tipo === 'dona' && (
+  <svg class:list={['dr-ilus dr-ilus--dona', className]} viewBox="0 0 200 200" role="img" aria-label="Ilustración de una mini dona glaseada con granitas">
+    <ellipse cx="100" cy="186" rx="70" ry="9" fill="#7A4B3A" opacity=".12" />
+    <path d={doughShade} fill="#C99560" fill-rule="evenodd" />
+    <path d={doughPath} fill="#E7BE8A" fill-rule="evenodd" />
+    <path d={circle(100, 105, 72) + ' ' + circle(100, 101, 27)} fill="#F0CD9C" fill-rule="evenodd" opacity=".55" />
+    <path d={glazePath} fill="#7A4B3A" fill-rule="evenodd" />
+    <path d="M58,66 C70,50 92,43 112,45" fill="none" stroke="#A9765C" stroke-width="7" stroke-linecap="round" opacity=".7" />
+    <path d="M128,52 C134,55 139,59 143,63" fill="none" stroke="#A9765C" stroke-width="5" stroke-linecap="round" opacity=".55" />
+    <g class="dr-ilus__sprinkles">
+      {sprinkles.map((s) => (
+        <rect x={f(s.x - 5)} y={f(s.y - 1.7)} width="10" height="3.4" rx="1.7" fill={s.c} transform={`rotate(${f(s.r)} ${f(s.x)} ${f(s.y)})`} />
+      ))}
+    </g>
+  </svg>
+)}
+
+{tipo === 'chipa' && (
+  <svg class:list={['dr-ilus dr-ilus--chipa', className]} viewBox="0 0 200 200" role="img" aria-label="Ilustración de chipitas doradas recién horneadas">
+    <g class="dr-steam" fill="none" stroke="#C9A58F" stroke-width="4" stroke-linecap="round" opacity=".55">
+      <path d="M80,40 c-8,-8 8,-14 0,-24" />
+      <path d="M102,34 c-8,-8 8,-14 0,-24" />
+      <path d="M124,40 c-8,-8 8,-14 0,-24" />
+    </g>
+    <ellipse cx="100" cy="166" rx="86" ry="10" fill="#7A4B3A" opacity=".12" />
+    {chipas.map((ch, i) => (
+      <g>
+        <ellipse cx={ch.cx} cy={ch.cy + 5} rx={ch.rx} ry={ch.ry} fill="#C98A3C" />
+        <ellipse cx={ch.cx} cy={ch.cy} rx={ch.rx} ry={ch.ry} fill="#EDB765" />
+        <ellipse cx={ch.cx - ch.rx * 0.12} cy={ch.cy - ch.ry * 0.18} rx={ch.rx * 0.78} ry={ch.ry * 0.7} fill="#F5CE85" />
+        <ellipse cx={ch.cx - ch.rx * 0.32} cy={ch.cy - ch.ry * 0.45} rx={ch.rx * 0.28} ry={ch.ry * 0.16} fill="#FCE6B8" transform={`rotate(-20 ${ch.cx} ${ch.cy})`} />
+        {spots[i].map((s) => (
+          <ellipse cx={f(s.x)} cy={f(s.y)} rx={f(s.rx)} ry={f(s.ry)} fill="#D9963F" opacity=".75" transform={`rotate(${f(s.rot)} ${f(s.x)} ${f(s.y)})`} />
+        ))}
+      </g>
+    ))}
+  </svg>
+)}
+
+{tipo === 'generica' && (
+  <svg class:list={['dr-ilus dr-ilus--generica', className]} viewBox="0 0 200 200" role="img" aria-label="Ilustración de un corazón">
+    <path d="M100,170 C40,128 24,96 34,68 C44,40 80,36 100,62 C120,36 156,40 166,68 C176,96 160,128 100,170Z" fill="#F2B8C0" />
+    <path d="M60,70 C64,58 74,52 84,54" fill="none" stroke="#FFF" stroke-width="7" stroke-linecap="round" opacity=".7" />
+    <g fill="#F3D37A">
+      <path d="M160,30 l4,10 10,4 -10,4 -4,10 -4,-10 -10,-4 10,-4Z" />
+      <path d="M34,140 l3,7 7,3 -7,3 -3,7 -3,-7 -7,-3 7,-3Z" />
+    </g>
+  </svg>
+)}

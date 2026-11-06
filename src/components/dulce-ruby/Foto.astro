@@ -1,0 +1,31 @@
+---
+/**
+ * Polaroid con cinta. Si hay `src` muestra la foto real;
+ * si no, muestra la ilustración del producto como relleno.
+ */
+import Ilustracion from './Ilustracion.astro';
+import type { Ilustracion as TipoIlus } from '../../data/dulce-ruby';
+
+interface Props {
+  src?: string;
+  alt: string;
+  ilustracion?: TipoIlus;
+  caption?: string;
+  tilt?: number;
+  class?: string;
+  seed?: number;
+}
+
+const { src, alt, ilustracion = 'generica', caption, tilt = -2.5, class: className = '', seed } = Astro.props;
+---
+<figure class:list={['dr-polaroid', className]} style={`--tilt:${tilt}deg`}>
+  <span class="dr-tape" aria-hidden="true"></span>
+  <div class:list={['dr-polaroid__img', !src && 'is-placeholder']}>
+    {src ? (
+      <img src={src} alt={alt} loading="lazy" decoding="async" draggable="false" />
+    ) : (
+      <Ilustracion tipo={ilustracion} seed={seed} />
+    )}
+  </div>
+  {caption && <figcaption class="dr-polaroid__cap">{caption}</figcaption>}
+</figure>

@@ -1,0 +1,501 @@
+---
+/**
+ * Dulce Ruby — catálogo en formato recetario (flipbook).
+ * Contenido: src/data/dulce-ruby.ts   ·   Estilos: src/styles/dulce-ruby.css
+ * Lógica del libro: src/scripts/dulce-ruby-book.ts
+ */
+import '@fontsource-variable/dancing-script';
+import '@fontsource-variable/quicksand';
+import '@fontsource-variable/caveat';
+import '../../styles/dulce-ruby.css';
+
+import Foto from '../../components/dulce-ruby/Foto.astro';
+import Ilustracion from '../../components/dulce-ruby/Ilustracion.astro';
+import WaIcon from '../../components/dulce-ruby/WaIcon.astro';
+import {
+  marca,
+  categorias,
+  promosExtra,
+  lugares,
+  formatoPesos,
+  linkWhatsapp,
+  ahorro,
+  precioPorUnidad,
+  precioDesde,
+  mejorOpcion,
+  mensajePedido,
+} from '../../data/dulce-ruby';
+
+// ── Mapa de páginas ─────────────────────────────────────────
+// 0 tapa · 1 bienvenida · 2 índice · 2 págs por producto · promos · dónde · pedir · próximamente · contratapa
+const N = categorias.length;
+const P = {
+  tapa: 0,
+  bienvenida: 1,
+  indice: 2,
+  cat: (i: number) => 3 + i * 2,
+  promos: 3 + N * 2,
+  donde: 4 + N * 2,
+  pedir: 5 + N * 2,
+  proximo: 6 + N * 2,
+  contratapa: 7 + N * 2,
+};
+const totalPaginas = P.contratapa + 1;
+const lado = (i: number) => (i % 2 === 1 ? 'is-left' : 'is-right');
+
+const secciones = [
+  { id: 'inicio', menu: 'Inicio', emoji: '📖', page: P.tapa },
+  ...categorias.map((c, i) => ({ id: c.id, menu: c.menu, emoji: c.emoji, page: P.cat(i) })),
+  { id: 'promos', menu: 'Promos', emoji: '🎁', page: P.promos },
+  { id: 'donde', menu: 'Dónde', emoji: '📍', page: P.donde },
+  { id: 'pedir', menu: 'Pedir', emoji: '💬', page: P.pedir },
+];
+
+const indice = [
+  ...categorias.map((c, i) => ({ label: c.titulo, emoji: c.emoji, page: P.cat(i) })),
+  { label: 'Promos', emoji: '🎁', page: P.promos },
+  { label: 'Dónde encontrarnos', emoji: '📍', page: P.donde },
+  { label: 'Cómo pedir', emoji: '💬', page: P.pedir },
+];
+
+const lugaresCargados = lugares.filter((l) => !l.pendiente);
+
+// ── Meta / SEO ──────────────────────────────────────────────
+const titulo = `${marca.nombre} · Catálogo de ${categorias.map((c) => c.titulo.toLowerCase()).join(' y ')}`;
+const descripcion = `Mirá nuestros productos, precios y promos en formato recetario, y hacé tu pedido por WhatsApp al ${marca.telefonoVisible}.`;
+const site = 'https://zullostack.vercel.app';
+const canonical = new URL('/dulce-ruby/', site).toString();
+const ogImage = new URL('/dulce-ruby/og.jpg', site).toString();
+const telIntl = '+' + marca.whatsapp;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Bakery',
+  name: marca.nombre,
+  url: canonical,
+  image: new URL('/dulce-ruby/logo.webp', site).toString(),
+  telephone: telIntl,
+  priceRange: '$',
+  makesOffer: categorias.flatMap((c) =>
+    c.opciones.map((o) => ({
+      '@type': 'Offer',
+      price: o.precio,
+      priceCurrency: 'ARS',
+      itemOffered: { '@type': 'Product', name: `${c.titulo} — ${o.nombre}` },
+    })),
+  ),
+};
+
+// ── Granitas de fondo (determinísticas) ─────────────────────
+const sprColors = ['#8EC1E6', '#F3D37A', '#F49FB6', '#A9DCC4', '#FFFFFF', '#E8A0AE'];
+let s = 11;
+const r = () => ((s = (s * 9301 + 49297) % 233280) / 233280);
+const granitas = Array.from({ length: 22 }, (_, i) => ({
+  left: (r() * 100).toFixed(1),
+  delay: (-r() * 22).toFixed(1),
+  dur: (14 + r() * 14).toFixed(1),
+  rot: Math.round(r() * 360),
+  color: sprColors[i % sprColors.length],
+  scale: (0.7 + r() * 0.8).toFixed(2),
+}));
+---
+<!doctype html>
+<html lang="es-AR" class="dr-root">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{titulo}</title>
+    <meta name="description" content={descripcion} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#F3C6CB" />
+    <meta name="color-scheme" content="light" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descripcion} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`Logo de ${marca.nombre}: un gatito asomado a una mini dona`} />
+    <meta property="og:locale" content="es_AR" />
+    <meta property="og:site_name" content={marca.nombre} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={titulo} />
+    <meta name="twitter:description" content={descripcion} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <link rel="icon" type="image/png" sizes="64x64" href="/dulce-ruby/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/dulce-ruby/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/dulce-ruby/apple-touch-icon.png" />
+    <link rel="preload" as="image" href="/dulce-ruby/logo.webp" type="image/webp" />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline>
+      // Orientación inicial antes del primer paint (evita salto de layout)
+      document.documentElement.classList.add(
+        'js',
+        window.matchMedia('(min-width: 820px)').matches ? 'is-landscape' : 'is-portrait'
+      );
+    </script>
+  </head>
+
+  <body class="dr">
+    <!-- Fondo: granitas cayendo -->
+    <div class="dr-bg" aria-hidden="true">
+      <div class="dr-bg__glow"></div>
+      {granitas.map((g) => (
+        <span
+          class="dr-granita"
+          style={`--x:${g.left}%;--d:${g.delay}s;--t:${g.dur}s;--r:${g.rot}deg;--c:${g.color};--s:${g.scale}`}
+        ></span>
+      ))}
+    </div>
+
+    <!-- Barra superior + menú -->
+    <header class="dr-top">
+      <div class="dr-top__row">
+        <button class="dr-brand" type="button" data-goto="0" aria-label="Ir a la tapa del catálogo">
+          <img src="/dulce-ruby/logo-sm.webp" alt="" width="40" height="38" />
+          <span class="dr-brand__name">{marca.nombre}</span>
+        </button>
+        <p class="dr-counter" aria-live="polite"><span data-counter>Tapa</span></p>
+      </div>
+      <nav class="dr-menu" aria-label="Secciones del catálogo">
+        <span class="dr-menu__label">¿Qué se te antoja?</span>
+        <ul class="dr-menu__list">
+          {secciones.map((sec) => (
+            <li>
+              <button type="button" class="dr-chip" data-goto={sec.page} data-chip={sec.id}>
+                <span class="dr-chip__emoji" aria-hidden="true">{sec.emoji}</span>
+                <span>{sec.menu}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </header>
+
+    <main class="dr-stage" id="contenido">
+      <div class="dr-loader" aria-hidden="true">
+        <Ilustracion tipo="dona" seed={3} />
+      </div>
+
+      <div class="dr-book-wrap">
+        <div class="dr-book" id="dr-book" data-total={totalPaginas}>
+
+          <!-- 0 · TAPA ─────────────────────────────── -->
+          <div class="dr-page dr-cover" data-density="hard" data-section="inicio">
+            <div class="dr-cover__inner">
+              <span class="dr-cover__stitch" aria-hidden="true"></span>
+              <p class="dr-cover__kicker">Recetario de antojos</p>
+              <img class="dr-cover__logo" src="/dulce-ruby/logo.webp" alt={`${marca.nombre} — mini donas`} width="560" height="525" />
+              <h1 class="dr-cover__title">Catálogo</h1>
+              <p class="dr-cover__sub">{categorias.map((c) => c.titulo).join(' · ')}</p>
+              <p class="dr-cover__hint"><span>Abrí el libro</span> <span class="dr-cover__arrow" aria-hidden="true">→</span></p>
+            </div>
+          </div>
+
+          <!-- 1 · BIENVENIDA ───────────────────────── -->
+          <div class:list={['dr-page dr-paper', lado(P.bienvenida)]} data-section="inicio">
+            <div class="dr-page__inner">
+              <div class="dr-runner"><span>{marca.nombre}</span><span>Bienvenida</span></div>
+              <div class="dr-welcome">
+                <img class="dr-welcome__logo" src="/dulce-ruby/logo-sm.webp" alt="" width="240" height="225" loading="lazy" />
+                <h2 class="dr-script dr-h1">¡Hola!</h2>
+                <p class="dr-lead">Qué lindo que pases por acá.</p>
+                <p>
+                  Este es nuestro <strong>recetario-catálogo</strong>: pasá las páginas o usá el menú de arriba
+                  para ir directo a lo que se te antoja.
+                </p>
+                <div class="dr-stamp dr-stamp--rect dr-stamp--rose dr-reveal" style="--i:2">
+                  <span>Ya estoy</span><strong>tomando pedidos</strong>
+                </div>
+                <p class="dr-hand dr-welcome__sign">— Ruby ♡</p>
+              </div>
+              <div class="dr-folio">{P.bienvenida}</div>
+            </div>
+          </div>
+
+          <!-- 2 · ÍNDICE ───────────────────────────── -->
+          <div class:list={['dr-page dr-paper dr-paper--lined', lado(P.indice)]} data-section="inicio">
+            <div class="dr-page__inner">
+              <div class="dr-runner"><span>{marca.nombre}</span><span>Índice</span></div>
+              <h2 class="dr-script dr-h1">Índice</h2>
+              <p class="dr-muted">Tocá una sección para ir directo.</p>
+              <ol class="dr-toc">
+                {indice.map((it) => (
+                  <li>
+                    <button type="button" class="dr-toc__btn" data-goto={it.page}>
+                      <span class="dr-toc__emoji" aria-hidden="true">{it.emoji}</span>
+                      <span class="dr-toc__label">{it.label}</span>
+                      <span class="dr-toc__dots" aria-hidden="true"></span>
+                      <span class="dr-toc__num">{it.page}</span>
+                    </button>
+                  </li>
+                ))}
+              </ol>
+              <p class="dr-hand dr-toc__note">
+                <span class="only-portrait">Tip: deslizá con el dedo para pasar 👉</span>
+                <span class="only-landscape">Tip: arrastrá la esquina para pasar 👉</span>
+              </p>
+              <div class="dr-folio">{P.indice}</div>
+            </div>
+          </div>
+
+          <!-- PRODUCTOS: 2 páginas por categoría ──── -->
+          {categorias.map((c, i) => {
+            const best = mejorOpcion(c);
+            return (
+              <>
+                <div class:list={['dr-page dr-paper', lado(P.cat(i))]} data-section={c.id}>
+                  <div class="dr-page__inner">
+                    <div class="dr-runner"><span>{marca.nombre}</span><span>Receta Nº {i + 1}</span></div>
+                    <p class="dr-eyebrow">{c.emoji} Receta Nº {i + 1}</p>
+                    <h2 class="dr-script dr-h1">{c.titulo}</h2>
+                    <p class="dr-bajada">{c.bajada}</p>
+                    <div class="dr-hero-photo">
+                      <Foto
+                        src={c.foto}
+                        alt={`Foto de ${c.titulo}`}
+                        ilustracion={c.ilustracion}
+                        caption={`${c.titulo.toLowerCase()} ♡`}
+                        tilt={i % 2 ? 2.5 : -2.5}
+                        seed={i + 5}
+                      />
+                      <div class="dr-stamp dr-stamp--choco dr-hero-photo__stamp dr-reveal" style="--i:1">
+                        <span>desde</span><strong>{formatoPesos(precioDesde(c))}</strong>
+                      </div>
+                    </div>
+                    <p class="dr-desc">{c.descripcion}</p>
+                    <p class="dr-next-hint only-portrait" aria-hidden="true">Pasá la página para ver precios →</p>
+                    <div class="dr-folio">{P.cat(i)}</div>
+                  </div>
+                </div>
+
+                <div class:list={['dr-page dr-paper dr-paper--lined', lado(P.cat(i) + 1)]} data-section={c.id}>
+                  <div class="dr-page__inner">
+                    <div class="dr-runner"><span>{marca.nombre}</span><span>{c.titulo}</span></div>
+                    <p class="dr-eyebrow">Lista de precios</p>
+                    <h2 class="dr-script dr-h2">{c.emoji} {c.titulo}</h2>
+                    <ul class="dr-prices">
+                      {c.opciones.map((o, j) => {
+                        const ah = ahorro(c, o);
+                        return (
+                          <li class:list={['dr-price', o === best && o.cantidad > 1 && 'is-best']}>
+                            {o === best && o.cantidad > 1 && <span class="dr-price__flag dr-pop" style="--i:3">Mejor precio</span>}
+                            <div class="dr-price__line">
+                              <span class="dr-price__name">{o.nombre}</span>
+                              <span class="dr-price__dots" aria-hidden="true"></span>
+                              <span class="dr-price__amount">{formatoPesos(o.precio)}</span>
+                            </div>
+                            <div class="dr-price__meta">
+                              {o.cantidad > 1 && <span class="dr-price__unit">{formatoPesos(precioPorUnidad(o))} c/u</span>}
+                              {ah > 0 && <span class="dr-tag dr-pop" style={`--i:${j}`}>Ahorrás {formatoPesos(ah)}</span>}
+                              <a class="dr-price__order" href={linkWhatsapp(mensajePedido(c, o))} target="_blank" rel="noopener" aria-label={`Pedir ${o.nombre} de ${c.titulo} por WhatsApp`}>
+                                Pedir
+                              </a>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                    {c.nota && <p class="dr-hand dr-note"><span class="dr-note__arrow" aria-hidden="true">↖</span> {c.nota}</p>}
+                    <a class="dr-btn dr-btn--wa" href={linkWhatsapp(`¡Hola Dulce Ruby! 👋 Quiero pedir ${c.titulo.toLowerCase()}.`)} target="_blank" rel="noopener">
+                      <WaIcon /> <span>Pedir {c.titulo.toLowerCase()}</span>
+                    </a>
+                    <div class="dr-folio">{P.cat(i) + 1}</div>
+                  </div>
+                </div>
+              </>
+            );
+          })}
+
+          <!-- PROMOS ───────────────────────────────── -->
+          <div class:list={['dr-page dr-paper', lado(P.promos)]} data-section="promos">
+            <div class="dr-page__inner">
+              <div class="dr-runner"><span>{marca.nombre}</span><span>Promos</span></div>
+              <p class="dr-eyebrow">🎁 Las que más convienen</p>
+              <h2 class="dr-script dr-h1">Promos</h2>
+              <p class="dr-muted dr-sub">Tocá una promo para pedirla por WhatsApp.</p>
+              <div class="dr-coupons">
+                {categorias.map((c, i) => {
+                  const o = mejorOpcion(c);
+                  const ah = ahorro(c, o);
+                  return (
+                    <a class="dr-coupon" href={linkWhatsapp(mensajePedido(c, o))} target="_blank" rel="noopener">
+                      <span class="dr-coupon__emoji" aria-hidden="true">{c.emoji}</span>
+                      <span class="dr-coupon__body">
+                        <span class="dr-coupon__title">{o.nombre}</span>
+                        <span class="dr-coupon__meta">
+                          {c.titulo}{o.cantidad > 1 && ` · ${formatoPesos(precioPorUnidad(o))} c/u`}
+                        </span>
+                      </span>
+                      <span class="dr-coupon__price">
+                        <strong>{formatoPesos(o.precio)}</strong>
+                        {ah > 0 && <em class="dr-pop" style={`--i:${i}`}>Ahorrás {formatoPesos(ah)}</em>}
+                      </span>
+                    </a>
+                  );
+                })}
+                {promosExtra.map((p) => (
+                  <a class="dr-coupon dr-coupon--alt" href={linkWhatsapp(p.mensaje)} target="_blank" rel="noopener">
+                    {p.sello && <span class="dr-coupon__flag">{p.sello}</span>}
+                    <span class="dr-coupon__emoji" aria-hidden="true">✨</span>
+                    <span class="dr-coupon__body">
+                      <span class="dr-coupon__title">{p.titulo}</span>
+                      <span class="dr-coupon__meta">{p.detalle}</span>
+                    </span>
+                    <span class="dr-coupon__price">
+                      {p.precio ? <strong>{formatoPesos(p.precio)}</strong> : <em class="dr-coupon__ask">Consultar</em>}
+                    </span>
+                  </a>
+                ))}
+              </div>
+              <div class="dr-folio">{P.promos}</div>
+            </div>
+          </div>
+
+          <!-- DÓNDE ────────────────────────────────── -->
+          <div class:list={['dr-page dr-paper dr-paper--grid', lado(P.donde)]} data-section="donde">
+            <div class="dr-page__inner">
+              <div class="dr-runner"><span>{marca.nombre}</span><span>Dónde</span></div>
+              <p class="dr-eyebrow">📍 Puntos de entrega</p>
+              <h2 class="dr-script dr-h1 dr-h1--sm">¿Dónde nos encontrás?</h2>
+              <svg class="dr-map" viewBox="0 6 300 74" aria-hidden="true">
+                <path d="M10,70 C60,20 90,80 140,45 S220,10 250,40" fill="none" stroke="#C9A58F" stroke-width="3" stroke-dasharray="2 8" stroke-linecap="round" />
+                <circle cx="10" cy="70" r="5" fill="#F49FB6" />
+                <g transform="translate(250 40)">
+                  <g class="dr-map__pin">
+                    <path d="M0,0 C-14,-16 -14,-34 0,-36 C14,-34 14,-16 0,0Z" fill="#7A4B3A" />
+                    <circle cy="-24" r="5.5" fill="#FFF6EC" />
+                  </g>
+                </g>
+              </svg>
+              <ul class="dr-places">
+                {lugares.map((l) => (
+                  <li class:list={['dr-place', l.pendiente && 'is-pending']}>
+                    <span class="dr-place__pin" aria-hidden="true">📍</span>
+                    <span class="dr-place__body">
+                      <strong>{l.nombre}</strong>
+                      <span>{l.pendiente ? 'Próximamente' : l.detalle}</span>
+                    </span>
+                    {l.mapa && !l.pendiente && (
+                      <a class="dr-place__map" href={l.mapa} target="_blank" rel="noopener">Ver mapa</a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <p class="dr-hand dr-note">
+                {lugaresCargados.length ? '¿No te queda cerca?' : '¿Dónde retirar?'} Escribinos y coordinamos.
+              </p>
+              <a class="dr-btn dr-btn--ghost" href={linkWhatsapp('¡Hola Dulce Ruby! 👋 ¿Dónde puedo retirar mi pedido?')} target="_blank" rel="noopener">
+                <WaIcon /> <span>Consultar punto de entrega</span>
+              </a>
+              <div class="dr-folio">{P.donde}</div>
+            </div>
+          </div>
+
+          <!-- CÓMO PEDIR ───────────────────────────── -->
+          <div class:list={['dr-page dr-paper', lado(P.pedir)]} data-section="pedir">
+            <div class="dr-page__inner">
+              <div class="dr-runner"><span>{marca.nombre}</span><span>Cómo pedir</span></div>
+              <p class="dr-eyebrow">💬 Fácil y rápido</p>
+              <h2 class="dr-script dr-h1">¿Cómo pedir?</h2>
+              <ol class="dr-steps">
+                <li><span class="dr-steps__n dr-pop" style="--i:0">1</span><span><strong>Elegí</strong> tus favoritos en este recetario.</span></li>
+                <li><span class="dr-steps__n dr-pop" style="--i:1">2</span><span><strong>Escribinos</strong> por WhatsApp con tu pedido.</span></li>
+                <li><span class="dr-steps__n dr-pop" style="--i:2">3</span><span><strong>Coordinamos</strong> día y lugar de entrega.</span></li>
+              </ol>
+              <div class="dr-howto-art" aria-hidden="true">
+                <Ilustracion tipo="dona" seed={21} class="dr-howto-art__a" />
+                <Ilustracion tipo="chipa" seed={22} class="dr-howto-art__b" />
+              </div>
+              <a class="dr-btn dr-btn--wa dr-btn--big" href={linkWhatsapp()} target="_blank" rel="noopener">
+                <WaIcon /> <span>Hacer mi pedido</span>
+              </a>
+              <p class="dr-phone">
+                o llamá / escribí al <a href={`tel:${telIntl}`}>{marca.telefonoVisible}</a>
+              </p>
+              {marca.instagram && (
+                <p class="dr-phone">
+                  Instagram: <a href={`https://instagram.com/${marca.instagram}`} target="_blank" rel="noopener">@{marca.instagram}</a>
+                </p>
+              )}
+              <div class="dr-folio">{P.pedir}</div>
+            </div>
+          </div>
+
+          <!-- PRÓXIMAMENTE ─────────────────────────── -->
+          <div class:list={['dr-page dr-paper dr-paper--lined', lado(P.proximo)]} data-section="pedir">
+            <div class="dr-page__inner">
+              <div class="dr-runner"><span>{marca.nombre}</span><span>Próximamente</span></div>
+              <p class="dr-eyebrow">✨ Se viene</p>
+              <h2 class="dr-script dr-h1">Próximamente…</h2>
+              <div class="dr-soon">
+                <div class="dr-soon__slot" style="--tilt:-3deg"><span>?</span><em>Nuevo antojo</em></div>
+                <div class="dr-soon__slot" style="--tilt:2.5deg"><span>?</span><em>Nuevo sabor</em></div>
+              </div>
+              <p class="dr-hand dr-soon__note">
+                Este recetario va a seguir creciendo: se vienen productos nuevos. ¡Volvé a pasar!
+              </p>
+              <div class="dr-folio">{P.proximo}</div>
+            </div>
+          </div>
+
+          <!-- CONTRATAPA ───────────────────────────── -->
+          <div class="dr-page dr-cover dr-cover--back" data-density="hard" data-section="pedir">
+            <div class="dr-cover__inner">
+              <span class="dr-cover__stitch" aria-hidden="true"></span>
+              <img class="dr-cover__logo dr-cover__logo--sm" src="/dulce-ruby/logo-sm.webp" alt="" width="240" height="225" loading="lazy" />
+              <p class="dr-script dr-back__title">¡Gracias por pasar!</p>
+              <p class="dr-back__text">Pedidos por WhatsApp</p>
+              <a class="dr-btn dr-btn--light" href={linkWhatsapp()} target="_blank" rel="noopener">
+                <WaIcon /> <span>{marca.telefonoVisible}</span>
+              </a>
+              <button type="button" class="dr-back__again" data-goto="0">↺ Volver a la tapa</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="dr-hint" data-hint>
+        <span class="dr-hint__hand" aria-hidden="true">👆</span>
+        <span class="only-portrait">Deslizá o tocá la página para pasarla</span>
+        <span class="only-landscape">Hacé clic o arrastrá la esquina para pasar la página</span>
+      </p>
+
+      <div class="dr-controls">
+        <button type="button" class="dr-nav dr-nav--prev" data-prev aria-label="Página anterior">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
+        </button>
+        <a class="dr-controls__order" href={linkWhatsapp()} target="_blank" rel="noopener">
+          <WaIcon /> <span>Hacé tu pedido</span>
+        </a>
+        <div class="dr-progress" aria-hidden="true"><span data-progress></span></div>
+        <button type="button" class="dr-nav dr-nav--next" data-next aria-label="Página siguiente">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
+        </button>
+      </div>
+
+      <noscript>
+        <p class="dr-noscript">
+          Para ver el catálogo activá JavaScript, o escribinos directo por
+          <a href={linkWhatsapp()}>WhatsApp al {marca.telefonoVisible}</a>.
+        </p>
+      </noscript>
+
+      <p class="dr-credit">Catálogo hecho por <a href="/">ZulloStack</a></p>
+    </main>
+
+    <a class="dr-fab" href={linkWhatsapp()} target="_blank" rel="noopener" aria-label="Hacer un pedido por WhatsApp">
+      <WaIcon />
+      <span>Hacé tu pedido</span>
+    </a>
+
+    <script>
+      import { initBook } from '../../scripts/dulce-ruby-book';
+      initBook();
+    </script>
+  </body>
+</html>

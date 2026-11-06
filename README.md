@@ -43,3 +43,17 @@ El sitio queda en `https://tu-proyecto.vercel.app`. Para dominio propio: Setting
 1. Crear `src/content/casos/nombre-del-caso.mdx` con el frontmatter requerido (ver `mateo-sanitarios.mdx` como ejemplo)
 2. El caso aparece automáticamente en `/casos` y tiene su página en `/casos/nombre-del-caso`
 3. Para marcarlo como destacado en el home: editar `src/components/FeaturedCase.astro`
+
+## Catálogo Dulce Ruby (`/dulce-ruby`)
+
+Catálogo-recetario tipo libro (flipbook) para compartir por link: `https://zullostack.vercel.app/dulce-ruby/`
+
+- **Contenido** (productos, precios, promos, lugares, fotos): todo en `src/data/dulce-ruby.ts`.
+  Productos nuevos → copiar un bloque de `categorias`; aparecen solos en el menú, el índice y como 2 páginas nuevas.
+  El ahorro ("Ahorrás $X"), el precio por unidad y la "mejor opción" se calculan solos.
+- **Fotos**: subir a `public/dulce-ruby/fotos/` y poner la ruta en `foto: '/dulce-ruby/fotos/donas.jpg'`.
+  Sin foto se muestra una ilustración. Ideal: JPG/WebP horizontal 4:3, ~1200px, < 250 KB.
+- **Links directos por sección**: `/dulce-ruby/#donas`, `#chipitas`, `#promos`, `#donde`, `#pedir`.
+- **Preview en WhatsApp**: `public/dulce-ruby/og.jpg` (1200×630).
+- Estilos: `src/styles/dulce-ruby.css` · Lógica del libro: `src/scripts/dulce-ruby-book.ts`
+  (usa `page-flip` 2.0.7 fijado; el input táctil/mouse es propio porque el de la librería falla con swipes medios).
