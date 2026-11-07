@@ -181,6 +181,7 @@ export function initBook(): void {
 
   document.addEventListener('keydown', (ev) => {
     if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+    if (root.classList.contains('cart-open')) return; // con el pedido abierto no se pasan páginas
     const tag = (ev.target as HTMLElement)?.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     if (ev.key === 'ArrowRight') {
@@ -269,7 +270,10 @@ function attachInput(pf: PageFlip, bookEl: HTMLElement, onInteract: () => void):
     app.startUserTouch(rel(e.clientX, e.clientY));
     e.preventDefault();
   });
-  window.addEventListener('mousemove', (e) => app.userMove(rel(e.clientX, e.clientY), false));
+  window.addEventListener('mousemove', (e) => {
+    if (!mouseActive && document.documentElement.classList.contains('cart-open')) return;
+    app.userMove(rel(e.clientX, e.clientY), false);
+  });
   window.addEventListener('mouseup', (e) => {
     if (!mouseActive) return;
     mouseActive = false;

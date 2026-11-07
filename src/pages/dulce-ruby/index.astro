@@ -12,6 +12,7 @@ import '../../styles/dulce-ruby.css';
 import Foto from '../../components/dulce-ruby/Foto.astro';
 import Ilustracion from '../../components/dulce-ruby/Ilustracion.astro';
 import WaIcon from '../../components/dulce-ruby/WaIcon.astro';
+import BolsaIcon from '../../components/dulce-ruby/BolsaIcon.astro';
 import {
   marca,
   categorias,
@@ -23,7 +24,7 @@ import {
   precioPorUnidad,
   precioDesde,
   mejorOpcion,
-  mensajePedido,
+  claveOpcion,
 } from '../../data/dulce-ruby';
 
 // ── Mapa de páginas ─────────────────────────────────────────
@@ -59,6 +60,22 @@ const indice = [
 ];
 
 const lugaresCargados = lugares.filter((l) => !l.pendiente);
+
+// ── Carrito: catálogo que usa el script del pedido ─────────
+const catalogoCarrito = {
+  whatsapp: marca.whatsapp,
+  primeraSeccion: categorias[0]?.id ?? 'inicio',
+  items: categorias.flatMap((c) =>
+    c.opciones.map((o) => ({
+      key: claveOpcion(c, o),
+      producto: c.titulo,
+      emoji: c.emoji,
+      opcion: o.nombre,
+      unidades: o.cantidad,
+      precio: o.precio,
+    })),
+  ),
+};
 
 // ── Meta / SEO ──────────────────────────────────────────────
 const titulo = `${marca.nombre} · Catálogo de ${categorias.map((c) => c.titulo.toLowerCase()).join(' y ')}`;
@@ -292,18 +309,25 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
                             <div class="dr-price__meta">
                               {o.cantidad > 1 && <span class="dr-price__unit">{formatoPesos(precioPorUnidad(o))} c/u</span>}
                               {ah > 0 && <span class="dr-tag dr-pop" style={`--i:${j}`}>Ahorrás {formatoPesos(ah)}</span>}
-                              <a class="dr-price__order" href={linkWhatsapp(mensajePedido(c, o))} target="_blank" rel="noopener" aria-label={`Pedir ${o.nombre} de ${c.titulo} por WhatsApp`}>
-                                Pedir
-                              </a>
+                              <span class="dr-add" data-add-wrap={claveOpcion(c, o)}>
+                                <button type="button" class="dr-price__order" data-add={claveOpcion(c, o)} aria-label={`Agregar ${o.nombre} de ${c.titulo} al pedido`}>
+                                  + Agregar
+                                </button>
+                                <span class="dr-add__step">
+                                  <button type="button" data-menos={claveOpcion(c, o)} aria-label={`Quitar una ${o.nombre}`}>−</button>
+                                  <span class="dr-add__n" data-qty-of={claveOpcion(c, o)}>0</span>
+                                  <button type="button" data-add={claveOpcion(c, o)} aria-label={`Sumar una ${o.nombre}`}>+</button>
+                                </span>
+                              </span>
                             </div>
                           </li>
                         );
                       })}
                     </ul>
                     {c.nota && <p class="dr-hand dr-note"><span class="dr-note__arrow" aria-hidden="true">↖</span> {c.nota}</p>}
-                    <a class="dr-btn dr-btn--wa" href={linkWhatsapp(`¡Hola Dulce Ruby! 👋 Quiero pedir ${c.titulo.toLowerCase()}.`)} target="_blank" rel="noopener">
-                      <WaIcon /> <span>Pedir {c.titulo.toLowerCase()}</span>
-                    </a>
+                    <button type="button" class="dr-btn dr-btn--wa" data-cart-open>
+                      <BolsaIcon /> <span>Ver mi pedido</span>
+                    </button>
                     <div class="dr-folio">{P.cat(i) + 1}</div>
                   </div>
                 </div>
@@ -317,13 +341,14 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
               <div class="dr-runner"><span>{marca.nombre}</span><span>Promos</span></div>
               <p class="dr-eyebrow">🎁 Las que más convienen</p>
               <h2 class="dr-script dr-h1">Promos</h2>
-              <p class="dr-muted dr-sub">Tocá una promo para pedirla por WhatsApp.</p>
+              <p class="dr-muted dr-sub">Tocá una promo para sumarla a tu pedido.</p>
               <div class="dr-coupons">
                 {categorias.map((c, i) => {
                   const o = mejorOpcion(c);
                   const ah = ahorro(c, o);
                   return (
-                    <a class="dr-coupon" href={linkWhatsapp(mensajePedido(c, o))} target="_blank" rel="noopener">
+                    <button type="button" class="dr-coupon" data-add={claveOpcion(c, o)} aria-label={`Agregar ${o.nombre} de ${c.titulo} al pedido`}>
+                      <span class="dr-coupon__badge" data-badge-of={claveOpcion(c, o)} hidden></span>
                       <span class="dr-coupon__emoji" aria-hidden="true">{c.emoji}</span>
                       <span class="dr-coupon__body">
                         <span class="dr-coupon__title">{o.nombre}</span>
@@ -335,7 +360,7 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
                         <strong>{formatoPesos(o.precio)}</strong>
                         {ah > 0 && <em class="dr-pop" style={`--i:${i}`}>Ahorrás {formatoPesos(ah)}</em>}
                       </span>
-                    </a>
+                    </button>
                   );
                 })}
                 {promosExtra.map((p) => (
@@ -403,17 +428,17 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
               <p class="dr-eyebrow">💬 Fácil y rápido</p>
               <h2 class="dr-script dr-h1">¿Cómo pedir?</h2>
               <ol class="dr-steps">
-                <li><span class="dr-steps__n dr-pop" style="--i:0">1</span><span><strong>Elegí</strong> tus favoritos en este recetario.</span></li>
-                <li><span class="dr-steps__n dr-pop" style="--i:1">2</span><span><strong>Escribinos</strong> por WhatsApp con tu pedido.</span></li>
-                <li><span class="dr-steps__n dr-pop" style="--i:2">3</span><span><strong>Coordinamos</strong> día y lugar de entrega.</span></li>
+                <li><span class="dr-steps__n dr-pop" style="--i:0">1</span><span><strong>Agregá</strong> lo que quieras a tu pedido.</span></li>
+                <li><span class="dr-steps__n dr-pop" style="--i:1">2</span><span><strong>Completá</strong> tu nombre y cómo lo recibís.</span></li>
+                <li><span class="dr-steps__n dr-pop" style="--i:2">3</span><span><strong>Enviá</strong> el pedido por WhatsApp y coordinamos.</span></li>
               </ol>
               <div class="dr-howto-art" aria-hidden="true">
                 <Ilustracion tipo="dona" seed={21} class="dr-howto-art__a" />
                 <Ilustracion tipo="chipa" seed={22} class="dr-howto-art__b" />
               </div>
-              <a class="dr-btn dr-btn--wa dr-btn--big" href={linkWhatsapp()} target="_blank" rel="noopener">
-                <WaIcon /> <span>Hacer mi pedido</span>
-              </a>
+              <button type="button" class="dr-btn dr-btn--wa dr-btn--big" data-cart-open>
+                <BolsaIcon /> <span>Hacer mi pedido</span>
+              </button>
               <p class="dr-phone">
                 o llamá / escribí al <a href={`tel:${telIntl}`}>{marca.telefonoVisible}</a>
               </p>
@@ -449,10 +474,11 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
               <span class="dr-cover__stitch" aria-hidden="true"></span>
               <img class="dr-cover__logo dr-cover__logo--sm" src="/dulce-ruby/logo-sm.webp" alt="" width="240" height="225" loading="lazy" />
               <p class="dr-script dr-back__title">¡Gracias por pasar!</p>
-              <p class="dr-back__text">Pedidos por WhatsApp</p>
-              <a class="dr-btn dr-btn--light" href={linkWhatsapp()} target="_blank" rel="noopener">
-                <WaIcon /> <span>{marca.telefonoVisible}</span>
-              </a>
+              <p class="dr-back__text">Armá tu pedido y lo coordinamos por WhatsApp</p>
+              <button type="button" class="dr-btn dr-btn--light" data-cart-open>
+                <BolsaIcon /> <span>Hacer mi pedido</span>
+              </button>
+              <a class="dr-back__tel" href={`tel:${telIntl}`}>{marca.telefonoVisible}</a>
               <button type="button" class="dr-back__again" data-goto="0">↺ Volver a la tapa</button>
             </div>
           </div>
@@ -469,9 +495,11 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
         <button type="button" class="dr-nav dr-nav--prev" data-prev aria-label="Página anterior">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" /></svg>
         </button>
-        <a class="dr-controls__order" href={linkWhatsapp()} target="_blank" rel="noopener">
-          <WaIcon /> <span>Hacé tu pedido</span>
-        </a>
+        <button type="button" class="dr-controls__order" data-cart-open>
+          <BolsaIcon />
+          <span data-cart-label>Hacé tu pedido</span>
+          <span class="dr-cart-badge" data-cart-count hidden></span>
+        </button>
         <div class="dr-progress" aria-hidden="true"><span data-progress></span></div>
         <button type="button" class="dr-nav dr-nav--next" data-next aria-label="Página siguiente">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
@@ -488,14 +516,113 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
       <p class="dr-credit">Catálogo hecho por <a href="/">ZulloStack</a></p>
     </main>
 
-    <a class="dr-fab" href={linkWhatsapp()} target="_blank" rel="noopener" aria-label="Hacer un pedido por WhatsApp">
-      <WaIcon />
-      <span>Hacé tu pedido</span>
-    </a>
+    <button type="button" class="dr-fab" data-cart-open>
+      <BolsaIcon />
+      <span data-cart-label>Hacé tu pedido</span>
+      <span class="dr-cart-badge" data-cart-count hidden></span>
+    </button>
+
+    <!-- Carrito / pedido ─────────────────────────────────── -->
+    <div class="dr-cart" data-cart hidden>
+      <div class="dr-cart__fondo" data-cart-close></div>
+      <section class="dr-cart__panel" role="dialog" aria-modal="true" aria-labelledby="dr-cart-titulo" tabindex="-1">
+        <header class="dr-cart__cab">
+          <button type="button" class="dr-cart__atras" data-cart-step="lista" aria-label="Volver al pedido" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 19-7-7 7-7m7 7H5" /></svg>
+          </button>
+          <div>
+            <h2 id="dr-cart-titulo" class="dr-script" data-cart-titulo>Tu pedido</h2>
+            <p data-cart-sub>Revisá lo que elegiste</p>
+          </div>
+          <button type="button" class="dr-cart__x" data-cart-close aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12" /></svg>
+          </button>
+        </header>
+
+        <!-- Paso 1: lo que eligió -->
+        <div class="dr-cart__paso" data-paso="lista">
+          <div class="dr-cart__cuerpo">
+            <ul class="dr-cart__items" data-cart-items></ul>
+            <div class="dr-cart__vacio" data-cart-vacio>
+              <span aria-hidden="true">🛍️</span>
+              <strong>Todavía no agregaste nada</strong>
+              <p>Tocá <em>+ Agregar</em> en las páginas de precios o en las promos.</p>
+              <button type="button" class="dr-cart__btn dr-cart__btn--ghost" data-cart-ver-productos>Ver productos</button>
+            </div>
+          </div>
+          <footer class="dr-cart__pie" data-cart-pie>
+            <div class="dr-cart__total"><span>Total</span><strong data-cart-total>$0</strong></div>
+            <button type="button" class="dr-cart__btn" data-cart-step="datos">Continuar</button>
+            <button type="button" class="dr-cart__vaciar" data-cart-vaciar>Vaciar pedido</button>
+          </footer>
+        </div>
+
+        <!-- Paso 2: datos -->
+        <form class="dr-cart__paso" data-paso="datos" novalidate hidden>
+          <div class="dr-cart__cuerpo">
+            <label class="dr-f">
+              <span>Tu nombre *</span>
+              <input name="nombre" type="text" autocomplete="name" maxlength="60" placeholder="Ej: Sofía" required />
+            </label>
+            <fieldset class="dr-f">
+              <legend>¿Cómo lo recibís? *</legend>
+              <div class="dr-seg">
+                <label><input type="radio" name="entrega" value="retiro" checked /><span>Lo retiro</span></label>
+                <label><input type="radio" name="entrega" value="envio" /><span>Envío</span></label>
+              </div>
+            </fieldset>
+            <label class="dr-f" data-solo-envio hidden>
+              <span>Dirección / zona *</span>
+              <input name="direccion" type="text" autocomplete="street-address" maxlength="120" placeholder="Calle, número y barrio" />
+            </label>
+            <label class="dr-f">
+              <span>¿Para cuándo?</span>
+              <input name="cuando" type="text" maxlength="60" placeholder="Ej: sábado a la tarde" />
+            </label>
+            <fieldset class="dr-f">
+              <legend>¿Cómo pagás? *</legend>
+              <div class="dr-seg">
+                <label><input type="radio" name="pago" value="efectivo" checked /><span>Efectivo</span></label>
+                <label><input type="radio" name="pago" value="transferencia" /><span>Transferencia</span></label>
+              </div>
+            </fieldset>
+            <label class="dr-f">
+              <span>Comentario</span>
+              <textarea name="comentario" rows="2" maxlength="300" placeholder="Ej: es para un cumple, sin granitas…"></textarea>
+            </label>
+            <p class="dr-cart__error" data-cart-error role="alert" hidden></p>
+          </div>
+          <footer class="dr-cart__pie">
+            <div class="dr-cart__total"><span>Total</span><strong data-cart-total>$0</strong></div>
+            <button type="submit" class="dr-cart__btn dr-cart__btn--wa"><WaIcon /> Enviar pedido por WhatsApp</button>
+            <p class="dr-cart__nota">Se abre WhatsApp con tu pedido escrito. Sólo tenés que tocar Enviar.</p>
+          </footer>
+        </form>
+
+        <!-- Paso 3: enviado -->
+        <div class="dr-cart__paso dr-cart__listo" data-paso="listo" hidden>
+          <div class="dr-cart__cuerpo">
+            <span class="dr-cart__ok" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5" /></svg>
+            </span>
+            <strong>¡Listo! Ya tenés tu pedido en WhatsApp</strong>
+            <p>Tocá <em>Enviar</em> en WhatsApp y te respondemos para confirmar.</p>
+            <a class="dr-cart__btn dr-cart__btn--wa" data-cart-wa href="#" target="_blank" rel="noopener"><WaIcon /> Abrir WhatsApp de nuevo</a>
+            <button type="button" class="dr-cart__btn dr-cart__btn--ghost" data-cart-nuevo>Hacer otro pedido</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="dr-toast" data-toast role="status" aria-live="polite" hidden></div>
+
+    <script is:inline type="application/json" id="dr-catalogo" set:html={JSON.stringify(catalogoCarrito)} />
 
     <script>
       import { initBook } from '../../scripts/dulce-ruby-book';
+      import { initCarrito } from '../../scripts/dulce-ruby-carrito';
       initBook();
+      initCarrito();
     </script>
   </body>
 </html>

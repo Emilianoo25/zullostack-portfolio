@@ -164,5 +164,14 @@ export const precioDesde = (c: Categoria): number =>
 export const mejorOpcion = (c: Categoria): Opcion =>
   [...c.opciones].sort((a, b) => precioPorUnidad(a) - precioPorUnidad(b))[0];
 
+/** Identificador estable de cada opción para el carrito: "donas-caja-de-15" */
+export const claveOpcion = (c: Categoria, o: Opcion): string =>
+  `${c.id}-${o.nombre
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')}`;
+
 export const mensajePedido = (c: Categoria, o: Opcion): string =>
   `¡Hola Dulce Ruby! 👋 Quiero pedir: ${c.titulo} — ${o.nombre} (${formatoPesos(o.precio)}).`;

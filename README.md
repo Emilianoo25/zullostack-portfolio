@@ -55,6 +55,10 @@ Catálogo-recetario tipo libro (flipbook) para compartir por link: `https://zull
   Sin foto se muestra una ilustración. Ideal: JPG/WebP horizontal 4:3, ~1200px, < 250 KB.
 - **Links directos por sección**: `/dulce-ruby/#donas`, `#chipitas`, `#promos`, `#donde`, `#pedir`.
 - **Preview en WhatsApp**: `public/dulce-ruby/og.jpg` (1200×630).
+- **Pedido con carrito**: "+ Agregar" suma al pedido (no abre WhatsApp). El cliente revisa, completa nombre,
+  retiro/envío (+ dirección), para cuándo, pago (efectivo/transferencia) y comentario; recién ahí se abre WhatsApp
+  con el pedido armado y el total. Lógica: `src/scripts/dulce-ruby-carrito.ts`. Las consultas (pedidos grandes,
+  dónde retirar) siguen yendo directo a WhatsApp.
 - Estilos: `src/styles/dulce-ruby.css` · Lógica del libro: `src/scripts/dulce-ruby-book.ts`
   (usa `page-flip` 2.0.7 fijado; el input táctil/mouse es propio porque el de la librería falla con swipes medios).
 
