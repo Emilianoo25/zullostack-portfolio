@@ -1,0 +1,31 @@
+---
+/**
+ * Panel privado de Dulce Ruby: stock, recetas, costos y ganancias.
+ * App: src/components/dulce-ruby/panel/PanelApp.tsx · Estilos: src/styles/dulce-ruby-panel.css
+ */
+import '@fontsource-variable/dancing-script';
+import '@fontsource-variable/quicksand';
+import '../../../styles/dulce-ruby-panel.css';
+import PanelApp from '../../../components/dulce-ruby/panel/PanelApp';
+---
+<!doctype html>
+<html lang="es-AR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Panel · Dulce Ruby</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#FFF7EE" />
+    <meta name="color-scheme" content="light" />
+    <link rel="manifest" href="/dulce-ruby/panel.webmanifest" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/dulce-ruby/favicon.png" />
+    <link rel="apple-touch-icon" href="/dulce-ruby/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Panel Ruby" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  </head>
+  <body class="pn">
+    <PanelApp client:only="preact" />
+    <noscript><p style="padding:24px;text-align:center">Para usar el panel activá JavaScript.</p></noscript>
+  </body>
+</html>

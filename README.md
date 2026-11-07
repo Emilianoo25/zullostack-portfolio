@@ -57,3 +57,30 @@ Catálogo-recetario tipo libro (flipbook) para compartir por link: `https://zull
 - **Preview en WhatsApp**: `public/dulce-ruby/og.jpg` (1200×630).
 - Estilos: `src/styles/dulce-ruby.css` · Lógica del libro: `src/scripts/dulce-ruby-book.ts`
   (usa `page-flip` 2.0.7 fijado; el input táctil/mouse es propio porque el de la librería falla con swipes medios).
+
+## Panel Dulce Ruby (`/dulce-ruby/panel/`)
+
+Panel privado para Ruby: stock de insumos, recetas, costos, producción, ventas y ganancias.
+
+- **Sin configurar** funciona en **modo prueba**: datos de ejemplo guardados sólo en ese navegador.
+- **Modo nube** (datos reales, desde cualquier dispositivo): se conecta a un proyecto Supabase **de Dulce Ruby**.
+
+### Conectar la cuenta de Supabase de Ruby (una sola vez)
+
+1. Crear cuenta en supabase.com con el mail de Ruby → **New project** `dulce-ruby`, región **South America (São Paulo)**. Guardar la contraseña de la base.
+2. **SQL Editor → New query** → pegar todo `supabase/dulce-ruby-panel.sql` → **Run**.
+3. **Authentication → URL Configuration** → *Site URL*: `https://zullostack.vercel.app/dulce-ruby/panel/` (y agregarla en *Redirect URLs*).
+4. **Project Settings → API**: copiar *Project URL* y la *Publishable key* (o *anon public*) en `src/data/dulce-ruby-panel.ts`
+   (o como variables `PUBLIC_DR_SUPABASE_URL` / `PUBLIC_DR_SUPABASE_KEY` en Vercel) y volver a deployar. **Nunca** la *secret/service_role*.
+5. Ruby abre el panel → **Crear cuenta** → confirma el mail → entra. Productos y precios se cargan solos desde el catálogo.
+6. Después: **Authentication → Sign In / Providers** → desactivar *Allow new users to sign up* (nadie más puede crear cuenta).
+
+Ojo: en el plan gratis, Supabase pausa el proyecto si nadie lo usa por 7 días; se reactiva desde el dashboard.
+
+### Cómo calcula
+- Receta por **tanda** + "rinde N unidades" → consumo y costo por unidad (ej: 150 g de chocolate rinden 3 donas → 50 g c/u).
+- **Compra**: suma stock y fija el precio por g/ml/u con lo que se pagó la última vez.
+- **Producción**: descuenta los insumos de la receta. **Venta**: cobra, descuenta envases y calcula la ganancia.
+- **Avisos**: insumo con stock ≤ mínimo (o en cero si se usa en recetas). Todo movimiento se puede deshacer.
+
+Código: `src/components/dulce-ruby/panel/` (lógica en `modelo.ts`) · Estilos: `src/styles/dulce-ruby-panel.css`.
