@@ -87,8 +87,9 @@ export function armarMensaje(lineas: { it: ItemCatalogo; n: number }[], d: Datos
 
 export function initCarrito(): void {
   const nodoCatalogo = document.getElementById('dr-catalogo');
-  const raiz = document.querySelector<HTMLElement>('[data-cart]');
-  if (!nodoCatalogo || !raiz) return;
+  const nodoCarrito = document.querySelector<HTMLElement>('[data-cart]');
+  if (!nodoCatalogo || !nodoCarrito) return;
+  const raiz: HTMLElement = nodoCarrito;
   const catalogo = JSON.parse(nodoCatalogo.textContent || '{}') as Catalogo;
   const porClave = new Map(catalogo.items.map((i) => [i.key, i]));
   const html = document.documentElement;
