@@ -28,18 +28,27 @@ import {
 } from '../../data/dulce-ruby';
 
 // ── Mapa de páginas ─────────────────────────────────────────
-// 0 tapa · 1 bienvenida · 2 índice · 2 págs por producto · promos · dónde · pedir · próximamente · contratapa
+// 0 tapa · 1 bienvenida · 2 índice · 2 págs por producto · promos · [dónde] · pedir · [próximamente] · contratapa
+//
+// "Dónde" aparece sólo cuando hay lugares cargados (no "pendiente") en src/data/dulce-ruby.ts.
+// El libro necesita una cantidad PAR de páginas (tapa y contratapa van solas), así que
+// "Dónde" y "Próximamente" se muestran u ocultan juntas.
 const N = categorias.length;
+const lugaresCargados = lugares.filter((l) => !l.pendiente);
+const mostrarDonde = lugaresCargados.length > 0;
+const mostrarProximo = mostrarDonde;
+
+let siguiente = 3 + N * 2;
 const P = {
   tapa: 0,
   bienvenida: 1,
   indice: 2,
   cat: (i: number) => 3 + i * 2,
-  promos: 3 + N * 2,
-  donde: 4 + N * 2,
-  pedir: 5 + N * 2,
-  proximo: 6 + N * 2,
-  contratapa: 7 + N * 2,
+  promos: siguiente++,
+  donde: mostrarDonde ? siguiente++ : -1,
+  pedir: siguiente++,
+  proximo: mostrarProximo ? siguiente++ : -1,
+  contratapa: siguiente++,
 };
 const totalPaginas = P.contratapa + 1;
 const lado = (i: number) => (i % 2 === 1 ? 'is-left' : 'is-right');
@@ -48,18 +57,16 @@ const secciones = [
   { id: 'inicio', menu: 'Inicio', emoji: '📖', page: P.tapa },
   ...categorias.map((c, i) => ({ id: c.id, menu: c.menu, emoji: c.emoji, page: P.cat(i) })),
   { id: 'promos', menu: 'Promos', emoji: '🎁', page: P.promos },
-  { id: 'donde', menu: 'Dónde', emoji: '📍', page: P.donde },
+  ...(mostrarDonde ? [{ id: 'donde', menu: 'Dónde', emoji: '📍', page: P.donde }] : []),
   { id: 'pedir', menu: 'Pedir', emoji: '💬', page: P.pedir },
 ];
 
 const indice = [
   ...categorias.map((c, i) => ({ label: c.titulo, emoji: c.emoji, page: P.cat(i) })),
   { label: 'Promos', emoji: '🎁', page: P.promos },
-  { label: 'Dónde encontrarnos', emoji: '📍', page: P.donde },
+  ...(mostrarDonde ? [{ label: 'Dónde encontrarnos', emoji: '📍', page: P.donde }] : []),
   { label: 'Cómo pedir', emoji: '💬', page: P.pedir },
 ];
-
-const lugaresCargados = lugares.filter((l) => !l.pendiente);
 
 // ── Carrito: catálogo que usa el script del pedido ─────────
 const catalogoCarrito = {
@@ -68,6 +75,7 @@ const catalogoCarrito = {
   items: categorias.flatMap((c) =>
     c.opciones.map((o) => ({
       key: claveOpcion(c, o),
+      cat: c.id,
       producto: c.titulo,
       emoji: c.emoji,
       opcion: o.nombre,
@@ -324,10 +332,13 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
                         );
                       })}
                     </ul>
-                    {c.nota && <p class="dr-hand dr-note"><span class="dr-note__arrow" aria-hidden="true">↖</span> {c.nota}</p>}
-                    <button type="button" class="dr-btn dr-btn--wa" data-cart-open>
-                      <BolsaIcon /> <span>Ver mi pedido</span>
-                    </button>
+                    <div class="dr-llevas" data-llevas-of={c.id}>
+                      {c.nota && <p class="dr-hand dr-note dr-llevas__nota"><span class="dr-note__arrow" aria-hidden="true">↖</span> {c.nota}</p>}
+                      <div class="dr-llevas__box" data-llevas-box aria-live="polite"></div>
+                      <button type="button" class="dr-btn dr-btn--wa dr-llevas__btn" data-cart-open>
+                        <BolsaIcon /> <span>Ver mi pedido</span>
+                      </button>
+                    </div>
                     <div class="dr-folio">{P.cat(i) + 1}</div>
                   </div>
                 </div>
@@ -381,7 +392,8 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
             </div>
           </div>
 
-          <!-- DÓNDE ────────────────────────────────── -->
+          <!-- DÓNDE (sólo con lugares cargados) ─────── -->
+          {mostrarDonde && (
           <div class:list={['dr-page dr-paper dr-paper--grid', lado(P.donde)]} data-section="donde">
             <div class="dr-page__inner">
               <div class="dr-runner"><span>{marca.nombre}</span><span>Dónde</span></div>
@@ -420,6 +432,7 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
               <div class="dr-folio">{P.donde}</div>
             </div>
           </div>
+          )}
 
           <!-- CÓMO PEDIR ───────────────────────────── -->
           <div class:list={['dr-page dr-paper', lado(P.pedir)]} data-section="pedir">
@@ -451,7 +464,8 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
             </div>
           </div>
 
-          <!-- PRÓXIMAMENTE ─────────────────────────── -->
+          <!-- PRÓXIMAMENTE (va junto con "Dónde" para mantener páginas pares) -->
+          {mostrarProximo && (
           <div class:list={['dr-page dr-paper dr-paper--lined', lado(P.proximo)]} data-section="pedir">
             <div class="dr-page__inner">
               <div class="dr-runner"><span>{marca.nombre}</span><span>Próximamente</span></div>
@@ -467,6 +481,7 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
               <div class="dr-folio">{P.proximo}</div>
             </div>
           </div>
+          )}
 
           <!-- CONTRATAPA ───────────────────────────── -->
           <div class="dr-page dr-cover dr-cover--back" data-density="hard" data-section="pedir">
@@ -551,6 +566,7 @@ const granitas = Array.from({ length: 22 }, (_, i) => ({
             </div>
           </div>
           <footer class="dr-cart__pie" data-cart-pie>
+            <p class="dr-cart__ahorro" data-cart-ahorro hidden></p>
             <div class="dr-cart__total"><span>Total</span><strong data-cart-total>$0</strong></div>
             <button type="button" class="dr-cart__btn" data-cart-step="datos">Continuar</button>
             <button type="button" class="dr-cart__vaciar" data-cart-vaciar>Vaciar pedido</button>

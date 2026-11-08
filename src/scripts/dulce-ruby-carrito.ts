@@ -9,6 +9,8 @@
 
 interface ItemCatalogo {
   key: string;
+  /** id del producto (categoría) */
+  cat: string;
   producto: string;
   emoji: string;
   opcion: string;
@@ -34,6 +36,7 @@ interface DatosCliente {
 const CLAVE_CARRITO = 'dr-carrito-v1';
 const CLAVE_CLIENTE = 'dr-cliente-v1';
 const MAX_POR_ITEM = 99;
+const MAX_UNIDADES = 600;
 
 const pesos = (n: number) => '$' + Math.round(n).toLocaleString('es-AR').replace(/,/g, '.');
 
@@ -59,6 +62,80 @@ const esc = (s: string) =>
 /** Línea del pedido: "1 × Caja de 15 de mini donas" · "6 × Mini donas (por unidad)" */
 const nombreLinea = (it: ItemCatalogo, n: number) =>
   it.unidades === 1 ? `${n} × ${it.producto} (por unidad)` : `${n} × ${it.opcion} de ${it.producto.toLowerCase()}`;
+
+/* ── Packs: siempre el precio más barato ────────────────────────
+ * El cliente suma unidades de un producto con cualquier botón; el carrito
+ * las reparte en la combinación EXACTA más barata de presentaciones.
+ *   chipitas: 2 medias docenas → 1 docena ($4.000) · 3 → docena + media ($6.500)
+ *   donas: 6 sueltas → bandeja de 6 · 15 → caja de 15
+ */
+export interface Combo {
+  counts: Record<string, number>;
+  total: number;
+}
+
+export function mejorCombo(opciones: ItemCatalogo[], unidades: number): Combo | null {
+  if (unidades <= 0) return { counts: {}, total: 0 };
+  const ops = [...opciones].sort((a, b) => b.unidades - a.unidades);
+  const costo = new Array<number>(unidades + 1).fill(Infinity);
+  const eleccion = new Array<number>(unidades + 1).fill(-1);
+  costo[0] = 0;
+  for (let n = 1; n <= unidades; n++) {
+    ops.forEach((o, i) => {
+      if (o.unidades <= n && costo[n - o.unidades] + o.precio < costo[n] - 1e-9) {
+        costo[n] = costo[n - o.unidades] + o.precio;
+        eleccion[n] = i;
+      }
+    });
+  }
+  if (!Number.isFinite(costo[unidades])) return null;
+  const counts: Record<string, number> = {};
+  for (let n = unidades; n > 0; n -= ops[eleccion[n]].unidades) {
+    const k = ops[eleccion[n]].key;
+    counts[k] = (counts[k] ?? 0) + 1;
+  }
+  return { counts, total: costo[unidades] };
+}
+
+/** "Caja de 15" → "Cajas de 15" · "Media docena" → "Medias docenas" (pluraliza hasta el "de") */
+export function plural(nombre: string): string {
+  let corto = false;
+  return nombre
+    .split(' ')
+    .map((w) => {
+      if (corto || w.toLowerCase() === 'de' || /\d/.test(w)) {
+        corto = true;
+        return w;
+      }
+      return /[aeiouáéíóú]$/i.test(w) ? `${w}s` : `${w}es`;
+    })
+    .join(' ');
+}
+
+/** "1 Docena + 1 Media docena" · "1 Bandeja de 6 + 2 unidades" */
+export function textoCombo(opciones: ItemCatalogo[], counts: Record<string, number>): string {
+  return [...opciones]
+    .sort((a, b) => b.unidades - a.unidades)
+    .filter((o) => (counts[o.key] ?? 0) > 0)
+    .map((o) => {
+      const n = counts[o.key];
+      return o.unidades === 1 ? `${n} ${n === 1 ? 'unidad' : 'unidades'}` : `${n} ${n === 1 ? o.opcion : plural(o.opcion)}`;
+    })
+    .join(' + ');
+}
+
+/** Si sumando pocas unidades más se paga lo mismo o menos, lo sugiere */
+export function sugerencia(opciones: ItemCatalogo[], unidades: number): { k: number; total: number; texto: string } | null {
+  if (unidades <= 0) return null;
+  const actual = mejorCombo(opciones, unidades);
+  if (!actual) return null;
+  const maxU = Math.max(...opciones.map((o) => o.unidades));
+  for (let k = 1; k < maxU; k++) {
+    const c = mejorCombo(opciones, unidades + k);
+    if (c && c.total <= actual.total) return { k, total: c.total, texto: textoCombo(opciones, c.counts) };
+  }
+  return null;
+}
 
 export function armarMensaje(lineas: { it: ItemCatalogo; n: number }[], d: DatosCliente): string {
   const total = lineas.reduce((s, l) => s + l.it.precio * l.n, 0);
@@ -100,6 +177,29 @@ export function initCarrito(): void {
     if (porClave.has(k) && n > 0) carrito[k] = Math.min(MAX_POR_ITEM, Math.floor(n));
   });
 
+  /* ── packs por producto ─────────────────────────────── */
+  const cats = [...new Set(catalogo.items.map((i) => i.cat))];
+  const opcionesDe = (cat: string) => catalogo.items.filter((i) => i.cat === cat);
+  const unidadesDe = (cat: string) => opcionesDe(cat).reduce((s, o) => s + (carrito[o.key] ?? 0) * o.unidades, 0);
+  const totalDe = (cat: string) => opcionesDe(cat).reduce((s, o) => s + (carrito[o.key] ?? 0) * o.precio, 0);
+  /** Precio "suelto" de referencia: el de la presentación más chica */
+  const precioBase = (cat: string) => {
+    const chica = [...opcionesDe(cat)].sort((a, b) => a.unidades - b.unidades)[0];
+    return chica ? chica.precio / chica.unidades : 0;
+  };
+  const ahorroDe = (cat: string) => Math.max(0, Math.round(unidadesDe(cat) * precioBase(cat) - totalDe(cat)));
+
+  /** Deja el producto en la combinación más barata para esas unidades */
+  function fijarUnidades(cat: string, unidades: number): boolean {
+    const ops = opcionesDe(cat);
+    const combo = mejorCombo(ops, Math.max(0, Math.min(MAX_UNIDADES, unidades)));
+    if (!combo) return false;
+    ops.forEach((o) => delete carrito[o.key]);
+    Object.assign(carrito, combo.counts);
+    return true;
+  }
+  cats.forEach((c) => fijarUnidades(c, unidadesDe(c)));
+
   const $ = <T extends Element = HTMLElement>(sel: string) => raiz.querySelector<T>(sel)!;
   const $$ = <T extends Element = HTMLElement>(sel: string, el: ParentNode = document) => Array.from(el.querySelectorAll<T>(sel));
   const panel = $('.dr-cart__panel');
@@ -123,6 +223,28 @@ export function initCarrito(): void {
       const n = carrito[e.dataset.badgeOf!] ?? 0;
       e.hidden = n === 0;
       e.textContent = n ? `✓ ${n} en tu pedido` : '';
+    });
+
+    // "Llevás… pagás…" en cada página de precios
+    $$<HTMLElement>('[data-llevas-of]').forEach((caja) => {
+      const cat = caja.dataset.llevasOf!;
+      const u = unidadesDe(cat);
+      const box = caja.querySelector<HTMLElement>('[data-llevas-box]');
+      caja.classList.toggle('has-items', u > 0);
+      if (!box) return;
+      if (!u) {
+        box.innerHTML = '';
+        return;
+      }
+      const ops = opcionesDe(cat);
+      const counts = Object.fromEntries(ops.map((o) => [o.key, carrito[o.key] ?? 0]));
+      const ah = ahorroDe(cat);
+      const sug = sugerencia(ops, u);
+      box.innerHTML = `
+        <p class="dr-llevas__que">Llevás <strong>${u} u.</strong> = ${esc(textoCombo(ops, counts))}</p>
+        <p class="dr-llevas__precio"><span>Pagás</span> <strong>${pesos(totalDe(cat))}</strong>${ah > 0 ? ` <em>ahorrás ${pesos(ah)}</em>` : ''}
+          <button type="button" class="dr-llevas__ver" data-cart-open>Ver pedido</button></p>
+        ${sug ? `<p class="dr-llevas__tip"><span>💡 Sumá ${sug.k} más y pagás ${pesos(sug.total)}</span> <button type="button" data-sumar="${esc(cat)}:${sug.k}">Sumar</button></p>` : ''}`;
     });
 
     // Botón del pedido (barra inferior / flotante)
@@ -157,25 +279,46 @@ export function initCarrito(): void {
     $('[data-cart-vacio]').hidden = ls.length > 0;
     $('[data-cart-pie]').hidden = ls.length === 0;
     $$<HTMLElement>('[data-cart-total]', raiz).forEach((e) => (e.textContent = pesos(total())));
+    const ahorroTotal = cats.reduce((s, c) => s + ahorroDe(c), 0);
+    $$<HTMLElement>('[data-cart-ahorro]', raiz).forEach((e) => {
+      e.hidden = ahorroTotal <= 0;
+      e.textContent = ahorroTotal > 0 ? `Con los packs ahorrás ${pesos(ahorroTotal)}` : '';
+    });
     if (paso === 'datos' && ls.length === 0) irA('lista');
   }
 
   const persistir = () => guardar(CLAVE_CARRITO, carrito);
 
+  /** Suma/resta una presentación y rearma los packs del producto */
   function cambiar(key: string, delta: number, origen?: HTMLElement) {
     const it = porClave.get(key);
     if (!it) return;
-    const antes = carrito[key] ?? 0;
-    const nuevo = Math.max(0, Math.min(MAX_POR_ITEM, antes + delta));
-    if (nuevo === 0) delete carrito[key];
-    else carrito[key] = nuevo;
+    if (delta < 0 && !(carrito[key] > 0)) return;
+    sumarUnidades(it.cat, delta * it.unidades, key);
+    origen?.blur?.();
+  }
+
+  function sumarUnidades(cat: string, delta: number, keyTocada?: string, desdeSugerencia = false) {
+    const antesClave = keyTocada ? carrito[keyTocada] ?? 0 : 0;
+    const antesTotal = totalDe(cat);
+    const antesUnid = unidadesDe(cat);
+    if (!fijarUnidades(cat, antesUnid + delta)) return;
     persistir();
     pintar();
-    if (delta > 0 && nuevo > antes && !raiz.classList.contains('is-open')) {
-      avisar(`Agregado: ${it.unidades === 1 ? `${it.producto} (por unidad)` : `${it.opcion} · ${it.producto}`}`);
+    if (delta > 0 && !raiz.classList.contains('is-open')) {
+      const ops = opcionesDe(cat);
+      const counts = Object.fromEntries(ops.map((o) => [o.key, carrito[o.key] ?? 0]));
+      const it = ops[0];
+      // Si la presentación tocada no creció es porque se armó un pack más grande
+      const armo = desdeSugerencia || (keyTocada !== undefined && (carrito[keyTocada] ?? 0) <= antesClave);
+      const sinPack = antesTotal + delta * precioBase(cat);
+      avisar(
+        armo
+          ? `¡Se armó ${textoCombo(ops, counts)}! Pagás ${pesos(totalDe(cat))}${sinPack > totalDe(cat) ? ` en vez de ${pesos(sinPack)}` : ''}`
+          : `${it?.producto ?? ''}: ${textoCombo(ops, counts)} · ${pesos(totalDe(cat))}`,
+      );
       rebote();
     }
-    origen?.blur?.();
   }
 
   /* ── avisos ─────────────────────────────────────────── */
@@ -188,7 +331,7 @@ export function initCarrito(): void {
     void toast.offsetWidth;
     toast.classList.add('is-in');
     window.clearTimeout(tToast);
-    tToast = window.setTimeout(() => (toast.hidden = true), 3200);
+    tToast = window.setTimeout(() => (toast.hidden = true), 3800);
   }
   function rebote() {
     $$<HTMLElement>('.dr-fab, .dr-controls__order').forEach((b) => {
@@ -308,7 +451,7 @@ export function initCarrito(): void {
   /* ── eventos (delegados) ────────────────────────────── */
   document.addEventListener('click', (e) => {
     const t = (e.target as Element | null)?.closest<HTMLElement>(
-      '[data-add], [data-menos], [data-cart-open], [data-cart-close], [data-cart-step], [data-cart-vaciar], [data-cart-nuevo], [data-cart-ver-productos]',
+      '[data-add], [data-menos], [data-sumar], [data-cart-open], [data-cart-close], [data-cart-step], [data-cart-vaciar], [data-cart-nuevo], [data-cart-ver-productos]',
     );
     if (!t) return;
     if (t.dataset.add !== undefined) {
@@ -317,6 +460,10 @@ export function initCarrito(): void {
     } else if (t.dataset.menos !== undefined) {
       e.preventDefault();
       cambiar(t.dataset.menos, -1, t);
+    } else if (t.dataset.sumar !== undefined) {
+      e.preventDefault();
+      const [cat, k] = t.dataset.sumar.split(':');
+      sumarUnidades(cat, Number(k), undefined, true);
     } else if (t.hasAttribute('data-cart-open')) {
       e.preventDefault();
       abrir(t);
@@ -349,6 +496,7 @@ export function initCarrito(): void {
     if (e.key !== CLAVE_CARRITO) return;
     Object.keys(carrito).forEach((k) => delete carrito[k]);
     Object.assign(carrito, leer<Carrito>(CLAVE_CARRITO) ?? {});
+    cats.forEach((c) => fijarUnidades(c, unidadesDe(c)));
     pintar();
   });
 

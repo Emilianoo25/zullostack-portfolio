@@ -59,6 +59,11 @@ Catálogo-recetario tipo libro (flipbook) para compartir por link: `https://zull
   retiro/envío (+ dirección), para cuándo, pago (efectivo/transferencia) y comentario; recién ahí se abre WhatsApp
   con el pedido armado y el total. Lógica: `src/scripts/dulce-ruby-carrito.ts`. Las consultas (pedidos grandes,
   dónde retirar) siguen yendo directo a WhatsApp.
+- **Packs automáticos**: el carrito junta las unidades de cada producto y arma siempre la combinación más barata
+  (2 medias docenas → 1 docena a $4.000; 6 donas sueltas → bandeja). En la página de precios se ve en vivo
+  "Llevás… = … · Pagás $X · ahorrás $Y" y, si conviene, "Sumá 1 más y pagás menos".
+- **"¿Dónde nos encontrás?"** aparece sólo cuando hay lugares cargados (sin `pendiente`) en `lugares`;
+  junto con ella vuelve "Próximamente" (el libro necesita cantidad par de páginas).
 - Estilos: `src/styles/dulce-ruby.css` · Lógica del libro: `src/scripts/dulce-ruby-book.ts`
   (usa `page-flip` 2.0.7 fijado; el input táctil/mouse es propio porque el de la librería falla con swipes medios).
 

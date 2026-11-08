@@ -35,6 +35,8 @@
   color-scheme: light;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  /* Nada puede ensanchar la página en el celular (p. ej. la hoja doblándose) */
+  overflow-x: hidden;
 }
 
 @media (min-width: 820px) {
@@ -2460,15 +2462,18 @@ html.cart-open {
 /* Aviso "Agregado" */
 .dr-toast {
   position: fixed;
-  bottom: calc(84px + env(safe-area-inset-bottom));
+  /* Arriba en el celular: abajo tapaba la lista de precios y el botón "Sumar" */
+  top: calc(116px + env(safe-area-inset-top));
   left: 50%;
+  pointer-events: none; /* los toques pasan al libro… */
   z-index: 55;
   display: flex;
   align-items: center;
   gap: 12px;
+  width: max-content;
   max-width: calc(100vw - 32px);
   padding: 8px 8px 8px 16px;
-  border-radius: 999px;
+  border-radius: 22px;
   background: rgba(78, 44, 32, 0.95);
   color: #fff4ea;
   font-size: 14px;
@@ -2480,12 +2485,12 @@ html.cart-open {
   display: none;
 }
 .dr-toast span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  min-width: 0; /* sin esto el texto largo ensancha el aviso y la página entera */
+  line-height: 1.3;
 }
 .dr-toast button {
   flex: none;
+  pointer-events: auto; /* …salvo "Ver pedido" */
   padding: 8px 12px;
   border: 0;
   border-radius: 999px;
@@ -2502,11 +2507,12 @@ html.cart-open {
 @keyframes dr-toast-in {
   from {
     opacity: 0;
-    transform: translate(-50%, 12px) scale(0.92);
+    transform: translate(-50%, -12px) scale(0.92);
   }
 }
 @media (min-width: 820px) {
   .dr-toast {
+    top: auto;
     right: 24px;
     bottom: 96px;
     left: auto;
@@ -2536,4 +2542,111 @@ html.cart-open {
     animation: none;
     stroke-dashoffset: 0;
   }
+}
+
+
+/* ── "Llevás… pagás…" en la página de precios ───────────── */
+.dr-llevas {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.dr-llevas__btn {
+  margin-top: auto;
+}
+.dr-llevas__box {
+  display: none;
+}
+.dr-llevas.has-items .dr-llevas__nota,
+.dr-llevas.has-items .dr-llevas__btn {
+  display: none;
+}
+.dr-llevas.has-items .dr-llevas__box {
+  display: grid;
+  gap: 0.8cqw;
+  margin-top: 2cqw;
+  padding: 2.2cqw 3.2cqw;
+  border-radius: 3cqw;
+  border: 0.45cqw solid var(--choco);
+  background: #fff;
+  box-shadow: 0 2cqw 4cqw -2.6cqw rgba(78, 44, 32, 0.55);
+  animation: dr-add-in 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.dr-llevas__que {
+  font-size: 3.4cqw;
+  line-height: 1.3;
+}
+.dr-llevas__precio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.6cqw 2cqw;
+  font-size: 3.4cqw;
+}
+.dr-llevas__precio > span {
+  color: var(--muted);
+  font-weight: 700;
+}
+.dr-llevas__precio strong {
+  font-size: 5.6cqw;
+  line-height: 1.1;
+  color: var(--choco);
+  font-variant-numeric: tabular-nums;
+}
+.dr-llevas__precio em {
+  padding: 0.6cqw 2cqw;
+  border-radius: 999px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: 2.9cqw;
+  font-style: normal;
+  font-weight: 700;
+}
+.dr-llevas__ver,
+.dr-llevas__tip button {
+  padding: 1cqw 3cqw;
+  border: 0;
+  border-radius: 999px;
+  background: var(--choco);
+  color: #fff4ea;
+  font-family: var(--font-body);
+  font-size: 3cqw;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dr-llevas__ver {
+  margin-left: auto;
+  align-self: center;
+}
+.dr-llevas__tip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2cqw;
+  padding: 1.1cqw 2cqw;
+  border-radius: 2cqw;
+  background: #fff6e0;
+  color: #8a5a00;
+  font-size: 3cqw;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.dr-llevas__tip button {
+  flex: none;
+  background: #c98d33;
+}
+
+.dr-cart__ahorro {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--ok-bg);
+  color: var(--ok);
+  font-size: 13.5px;
+  font-weight: 700;
+  text-align: center;
+}
+.dr-cart__ahorro[hidden] {
+  display: none;
 }

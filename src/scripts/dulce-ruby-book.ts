@@ -262,16 +262,22 @@ function attachInput(pf: PageFlip, bookEl: HTMLElement, onInteract: () => void):
     return { x: pf.getOrientation() === 'portrait' ? r.left + r.pageWidth + 10 : r.left + 10, y };
   };
 
+  // En el celular, después de cada toque el navegador manda eventos de mouse "de compatibilidad".
+  // page-flip los tomaba como mouse sobre la esquina: doblaba la hoja, cambiaba la página por una
+  // copia y el click se perdía (botones cerca de la esquina no respondían). Se ignoran.
+  let ultimoToque = -Infinity;
+  const esMouseFalso = () => performance.now() - ultimoToque < 900;
+
   // ── Mouse (desktop): igual que page-flip, con la dirección corregida ──
   let mouseActive = false;
   block.addEventListener('mousedown', (e) => {
-    if (e.button !== 0 || isInteractive(e.target)) return;
+    if (esMouseFalso() || e.button !== 0 || isInteractive(e.target)) return;
     mouseActive = true;
     app.startUserTouch(rel(e.clientX, e.clientY));
     e.preventDefault();
   });
   window.addEventListener('mousemove', (e) => {
-    if (!mouseActive && document.documentElement.classList.contains('cart-open')) return;
+    if (!mouseActive && (esMouseFalso() || document.documentElement.classList.contains('cart-open'))) return;
     app.userMove(rel(e.clientX, e.clientY), false);
   });
   window.addEventListener('mouseup', (e) => {
@@ -281,7 +287,7 @@ function attachInput(pf: PageFlip, bookEl: HTMLElement, onInteract: () => void):
   });
 
   // ── Táctil ──
-  let start: { x: number; y: number; t: number } | null = null;
+  let start: { x: number; y: number; t: number; target: EventTarget | null } | null = null;
   let axis: 'none' | 'x' | 'y' = 'none';
   let last: Point = { x: 0, y: 0 };
   let forward = true;
@@ -291,12 +297,13 @@ function attachInput(pf: PageFlip, bookEl: HTMLElement, onInteract: () => void):
     (e) => {
       // (también sobre links: un tap abre el link; si se arrastra en horizontal, el
       // preventDefault del touchmove cancela el click y se pasa la página)
+      ultimoToque = performance.now();
       if (e.touches.length !== 1 || pf.getState() === 'flipping') {
         start = null;
         return;
       }
       const t = e.touches[0];
-      start = { x: t.clientX, y: t.clientY, t: performance.now() };
+      start = { x: t.clientX, y: t.clientY, t: performance.now(), target: e.target };
       last = { x: t.clientX, y: t.clientY };
       axis = 'none';
     },
@@ -329,9 +336,20 @@ function attachInput(pf: PageFlip, bookEl: HTMLElement, onInteract: () => void):
   );
 
   const end = (cancelled: boolean) => {
+    ultimoToque = performance.now();
     if (!start) return;
     const s = start;
     start = null;
+    if (axis === 'none') {
+      // Toque corto sobre la hoja (no sobre un botón/link) → pasa la página hacia ese lado
+      if (!cancelled && performance.now() - s.t < 450 && !isInteractive(s.target)) {
+        onInteract();
+        const p = rel(s.x, s.y);
+        app.startUserTouch(p);
+        app.userStop(p);
+      }
+      return;
+    }
     if (axis !== 'x') return;
     const pos = rel(last.x, last.y);
     const dx = last.x - s.x;
